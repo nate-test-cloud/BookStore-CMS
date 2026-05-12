@@ -6,7 +6,11 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('🌱 Seeding database...');
 
-    // Clean up existing data
+    // Clean up existing data (order matters due to foreign keys)
+    await prisma.book.deleteMany();
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.refreshToken.deleteMany();
     await prisma.user.deleteMany();
     await prisma.category.deleteMany();
     await prisma.author.deleteMany();

@@ -525,4 +525,84 @@ export class OrdersService {
             discountAmount,
         };
     }
+
+    async getUserPurchases(userId: string, page = 1, limit = 20) {
+        const skip = (page - 1) * limit;
+
+        const [orders, total] = await Promise.all([
+            this.prisma.order.findMany({
+                where: { userId },
+                skip,
+                take: limit,
+                include: {
+                    items: {
+                        include: {
+                            book: {
+                                select: {
+                                    id: true,
+                                    title: true,
+                                    isbn: true,
+                                    currentPrice: true,
+                                    coverImage: true,
+                                },
+                            },
+                        },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
+            }),
+            this.prisma.order.count({ where: { userId } }),
+        ]);
+
+        return {
+            purchases: orders,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        };
+    }
+
+    async getUserIssuedBooks(userId: string) {
+        // Get all orders for the user to see their purchased/issued books
+        const orders = await this.prisma.order.findMany({
+            where: { userId },
+            include: {
+                items: {
+                    include: {
+                        book: {
+                            select: {
+                                id: true,
+                                title: true,
+                                isbn: true,
+                                currentPrice: true,
+                                coverImage: true,
+                                authors: { select: { name: true } },
+                                category: { select: { name: true } },
+                            },
+                        },
+                    },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        // Flatten to list of issued books
+        const issuedBooks = orders.flatMap((order) =>
+            order.items.map((item) => ({
+                orderId: order.id,
+                orderDate: order.createdAt,
+                returnDeadline: new Date(order.createdAt.getTime() + 30 * 24 * 60 * 60 * 1000), // 30 days
+                ...item.book,
+                quantity: item.quantity,
+            })),
+        );
+
+        return {
+            issuedBooks,
+            totalIssued: issuedBooks.length,
+        };
+    }
 }

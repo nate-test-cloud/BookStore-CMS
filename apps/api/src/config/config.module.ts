@@ -11,7 +11,7 @@ import { storageConfig } from './storage.config';
             isGlobal: true,
             envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
             load: [appConfig, databaseConfig, authConfig, storageConfig],
-            cache: true,
+            cache: false,
         }),
     ],
 })

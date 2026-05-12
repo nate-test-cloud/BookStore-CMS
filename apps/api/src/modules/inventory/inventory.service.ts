@@ -570,4 +570,28 @@ export class InventoryService {
 
         return valuation;
     }
+
+    async searchBooks(query: string) {
+        const searchTerm = query.toLowerCase();
+
+        return this.prisma.book.findMany({
+            where: {
+                deletedAt: null,
+                isActive: true,
+                OR: [
+                    { title: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { isbn: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { description: { contains: searchTerm, mode: 'insensitive' as const } },
+                    { authors: { some: { name: { contains: searchTerm, mode: 'insensitive' as const } } } },
+                ],
+            },
+            include: {
+                category: true,
+                authors: true,
+                publisher: true,
+                reviews: { select: { rating: true } },
+            },
+            take: 50,
+        });
+    }
 }

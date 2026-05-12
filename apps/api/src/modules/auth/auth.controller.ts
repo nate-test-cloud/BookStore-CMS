@@ -85,4 +85,16 @@ export class AuthController {
     async getCurrentUser(@CurrentUser() user: any) {
         return this.authService.validateUser(user.userId);
     }
+
+    @Get('profile')
+    @UseGuards(JwtAuthGuard)
+    async getProfile(@CurrentUser() user: any) {
+        return this.authService.getProfile(user.userId);
+    }
+
+    @Post('profile')
+    @UseGuards(JwtAuthGuard)
+    async updateProfile(@CurrentUser() user: any, @Body() updateData: any) {
+        return this.authService.updateProfile(user.userId, updateData);
+    }
 }

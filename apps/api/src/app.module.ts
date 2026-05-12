@@ -5,6 +5,8 @@ import { ConfigModule } from './config/config.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { ApiCompatibilityModule } from './modules/api-compatibility/api-compatibility.module';
+import { CartModule } from './modules/cart/cart.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -24,6 +26,8 @@ import { AppService } from './app.service';
     AuthModule,
     InventoryModule,
     OrdersModule,
+    CartModule,
+    ApiCompatibilityModule,
 
     // TODO: Add more modules
     // CustomerModule,

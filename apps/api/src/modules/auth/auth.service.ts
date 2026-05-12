@@ -310,4 +310,58 @@ export class AuthService {
 
         return user;
     }
+
+    async getProfile(userId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                username: true,
+                fullName: true,
+                role: true,
+                profileImage: true,
+                phoneNumber: true,
+                isActive: true,
+                createdAt: true,
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        return user;
+    }
+
+    async updateProfile(userId: string, updateData: any) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Don't allow updating email/password through this endpoint
+        const { email, passwordHash, ...safeData } = updateData;
+
+        const updated = await this.prisma.user.update({
+            where: { id: userId },
+            data: safeData,
+            select: {
+                id: true,
+                email: true,
+                username: true,
+                fullName: true,
+                role: true,
+                profileImage: true,
+                phoneNumber: true,
+                isActive: true,
+                createdAt: true,
+            },
+        });
+
+        return updated;
+    }
 }

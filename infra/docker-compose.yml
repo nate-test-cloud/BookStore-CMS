@@ -1,0 +1,135 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: bookstore_postgres
+    environment:
+      POSTGRES_USER: bookstore
+      POSTGRES_PASSWORD: bookstore
+      POSTGRES_DB: bookstore
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U bookstore' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bookstore
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: bookstore_redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ 'CMD', 'redis-cli', 'ping' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bookstore
+
+  # Meilisearch
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: bookstore_meilisearch
+    environment:
+      MEILI_MASTER_KEY: masterKey
+    ports:
+      - '7700:7700'
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:7700/health' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bookstore
+  # NestJS Backend API
+  # api:
+  #   build:
+  #     context: ../
+  #     dockerfile: infra/docker/Dockerfile.api
+  #   container_name: bookstore_api
+  #   environment:
+  #     NODE_ENV: production
+  #     DATABASE_URL: postgresql://bookstore:bookstore@postgres:5432/bookstore
+  #     REDIS_URL: redis://redis:6379
+  #     MEILISEARCH_URL: http://meilisearch:7700
+  #     MEILISEARCH_MASTER_KEY: masterKey
+  #     JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+  #     JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your-super-secret-refresh-key}
+  #     API_PORT: 3000
+  #     FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
+  #   ports:
+  #     - '3000:3000'
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     meilisearch:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ../apps/api:/app
+  #     - /app/node_modules
+  #   networks:
+  #     - bookstore
+  #   healthcheck:
+  #     test: [ 'CMD', 'curl', '-f', 'http://localhost:3000/api/v1/health' ]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # # Next.js Frontend
+  # web:
+  #   build:
+  #     context: ../
+  #     dockerfile: infra/docker/Dockerfile.web
+  #   container_name: bookstore_web
+  #   environment:
+  #     NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000/api/v1}
+  #     NODE_ENV: production
+  #   ports:
+  #     - '3001:3001'
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - bookstore
+
+  # Nginx Reverse Proxy
+  #   nginx:
+  #     image: nginx:alpine
+  #     container_name: bookstore_nginx
+  #     ports:
+  #       - '80:80'
+  #       - '443:443'
+  #     volumes:
+  #       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #       - ./ssl:/etc/nginx/ssl:ro
+  #     depends_on:
+  #       - api
+  #       - web
+  #     networks:
+  #       - bookstore
+  #     healthcheck:
+  #       test: [ 'CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/' ]
+  #       interval: 30s
+  #       timeout: 10s
+  #       retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+  meilisearch_data:
+
+networks:
+  bookstore:
+    driver: bridge

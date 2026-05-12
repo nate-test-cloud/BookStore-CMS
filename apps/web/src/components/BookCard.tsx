@@ -47,7 +47,7 @@ const BookCard = ({ id, cover, title, author, rating, price, available_copies }:
   };
 
   return (
-    <div 
+    <div
       onClick={handleCardClick}
       className="group bg-card rounded-2xl overflow-hidden border border-border/40 cursor-pointer transition-all duration-500 hover:shadow-2xl hover:shadow-primary/8 hover:border-primary/20 hover:-translate-y-2"
     >
@@ -100,11 +100,10 @@ const BookCard = ({ id, cover, title, author, rating, price, available_copies }:
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
-              className={`h-3.5 w-3.5 transition-all duration-300 ${
-                i < rating
+              className={`h-3.5 w-3.5 transition-all duration-300 ${i < rating
                   ? "fill-star text-star group-hover:scale-110"
                   : "fill-muted text-muted"
-              }`}
+                }`}
               style={{ transitionDelay: `${i * 40}ms` }}
             />
           ))}

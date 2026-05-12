@@ -121,8 +121,8 @@ export default function BookDetails() {
                   <Star
                     key={i}
                     className={`h-5 w-5 ${i < book.rating
-                        ? "fill-star text-star"
-                        : "fill-muted text-muted"
+                      ? "fill-star text-star"
+                      : "fill-muted text-muted"
                       }`}
                   />
                 ))}
@@ -166,8 +166,8 @@ export default function BookDetails() {
                     {book.type === "offline" && (
                       <div
                         className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${purchaseMode === "offline"
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/50"
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50"
                           }`}
                         onClick={() => setPurchaseMode("offline")}
                       >
@@ -183,8 +183,8 @@ export default function BookDetails() {
                     {book.type === "ebook" && (
                       <div
                         className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${purchaseMode === "online"
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/50"
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50"
                           }`}
                         onClick={() => setPurchaseMode("online")}
                       >

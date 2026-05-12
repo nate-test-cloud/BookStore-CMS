@@ -1,5 +1,6 @@
 import { Star, BookmarkPlus, BookOpen, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { apiPost } from "@/lib/api-client";
 
 interface BookCardProps {
   id: number;
@@ -14,48 +15,42 @@ interface BookCardProps {
 const BookCard = ({ id, cover, title, author, rating, price, available_copies }: BookCardProps) => {
   const navigate = useNavigate();
 
-  const handleIssue = async () => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/v1/books/${id}/issue`, {
-        method: "POST",
-        credentials: "include",
-      });
+  const handleDetailsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/book-details/${id}`);
+  };
 
-      if (res.ok) {
-        alert("Book issued successfully!");
-        // Refetch books to update available copies
-        window.location.reload();
-      } else {
-        const data = await res.json();
-        alert(data.message);
-      }
+  const handleCardClick = () => {
+    navigate(`/book-details/${id}`);
+  };
+
+  const handleIssue = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await apiPost(`/books/${id}/issue`);
+      alert("Book issued successfully!");
+      window.location.reload();
     } catch (error) {
-      alert("Error issuing book");
+      alert(error instanceof Error ? error.message : "Error issuing book");
     }
   };
 
-  const handlePurchase = async () => {
+  const handlePurchase = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
-      const res = await fetch(`http://localhost:5000/api/v1/books/${id}/purchase`, {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        alert("Book purchased successfully!");
-        // Reload to update the UI
-        window.location.reload();
-      } else {
-        const data = await res.json();
-        alert(data.message);
-      }
+      await apiPost(`/books/${id}/purchase`);
+      alert("Book purchased successfully!");
+      window.location.reload();
     } catch (error) {
-      alert("Error purchasing book");
+      alert(error instanceof Error ? error.message : "Error purchasing book");
     }
   };
 
   return (
-    <div className="group bg-card rounded-2xl overflow-hidden border border-border/40 cursor-pointer transition-all duration-500 hover:shadow-2xl hover:shadow-primary/8 hover:border-primary/20 hover:-translate-y-2">
+    <div 
+      onClick={handleCardClick}
+      className="group bg-card rounded-2xl overflow-hidden border border-border/40 cursor-pointer transition-all duration-500 hover:shadow-2xl hover:shadow-primary/8 hover:border-primary/20 hover:-translate-y-2"
+    >
       <div className="aspect-[2/3] overflow-hidden relative">
         <img
           src={cover}
@@ -89,7 +84,7 @@ const BookCard = ({ id, cover, title, author, rating, price, available_copies }:
         {/* View details label */}
         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75">
           <button
-            onClick={() => navigate(`/book-details/${id}`)}
+            onClick={handleDetailsClick}
             className="w-full inline-block px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold shadow-lg shadow-primary/30 tracking-wide hover:bg-primary/90 transition"
           >
             View Details

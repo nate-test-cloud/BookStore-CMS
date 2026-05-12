@@ -18,10 +18,10 @@ import { setSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 
 const mainItems = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/index" },
-  { icon: BookCheck, label: "Issued Books", to: "/issued" },
-  { icon: Clock, label: "Return Deadlines", to: "/return-deadline" },
-  { icon: Monitor, label: "Online Reading", to: "/online-read" },
-  { icon: ShoppingCart, label: "My Purchases", to: "/purchase" },
+  { icon: BookCheck, label: "Issued", to: "/issued" },
+  { icon: Clock, label: "Returns", to: "/return-deadline" },
+  { icon: Monitor, label: "Reading", to: "/online-read" },
+  { icon: ShoppingCart, label: "Purchases", to: "/purchase" },
   { icon: Bell, label: "Notifications", to: "/notifications" },
 ];
 

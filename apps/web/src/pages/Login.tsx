@@ -44,7 +44,7 @@ export default function Login() {
       try {
         const data = await apiPost('/auth/login', { email, password });
         console.log('Login successful', data);
-        
+
         // Store tokens in localStorage
         if (data.accessToken) {
           localStorage.setItem('accessToken', data.accessToken);
@@ -52,7 +52,7 @@ export default function Login() {
         if (data.refreshToken) {
           localStorage.setItem('refreshToken', data.refreshToken);
         }
-        
+
         navigate("/index");
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Login failed";
@@ -66,7 +66,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8F9FC]">
       <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-8">
-        
+
         <h2 className="text-2xl font-bold text-[#1F1F1F] text-center mb-2">
           Welcome Back
         </h2>
@@ -84,11 +84,10 @@ export default function Login() {
               type="email"
               placeholder="Enter your email"
               disabled={loading}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 disabled:opacity-50 ${
-                errors.email
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 disabled:opacity-50 ${errors.email
                   ? "border-red-500 focus:ring-red-400"
                   : "focus:ring-[#926d24]"
-              }`}
+                }`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -105,11 +104,10 @@ export default function Login() {
               type="password"
               placeholder="Enter your password"
               disabled={loading}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 disabled:opacity-50 ${
-                errors.password
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 disabled:opacity-50 ${errors.password
                   ? "border-red-500 focus:ring-red-400"
                   : "focus:ring-[#926d24]"
-              }`}
+                }`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import TopSearchBar from "@/components/TopSearchBar";
 import { Star, ArrowLeft, ShoppingCart } from "lucide-react";
+import { apiGet, apiPost } from "@/lib/api-client";
 
 export default function BookDetails() {
   const { id } = useParams();
@@ -15,31 +16,24 @@ export default function BookDetails() {
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/v1/verify", {
-          method: "GET",
-          credentials: "include",
-        });
+        await apiGet("/auth/me");
 
-        if (!res.ok) {
-          navigate("/login");
-          return;
+        const booksResponse = await apiGet("/books");
+        let books = [];
+        if (booksResponse.books) {
+          books = booksResponse.books;
+        } else if (Array.isArray(booksResponse)) {
+          books = booksResponse;
         }
 
-        const booksRes = await fetch("http://localhost:5000/api/v1/books", {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (booksRes.ok) {
-          const books = await booksRes.json();
-          const foundBook = books.find((b) => b.id === parseInt(id));
-          if (foundBook) {
-            setBook(foundBook);
-          }
+        const foundBook = books.find((b: any) => b.id === id || b.id === parseInt(id));
+        if (foundBook) {
+          setBook(foundBook);
         }
 
         setLoading(false);
-      } catch {
+      } catch (error) {
+        console.error("Error fetching book:", error);
         navigate("/login");
       }
     };
@@ -61,28 +55,16 @@ export default function BookDetails() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/v1/cart", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          book_id: book.id,
-          quantity,
-          purchase_type: purchaseMode,
-        }),
+      await apiPost("/cart", {
+        book_id: book.id,
+        quantity,
+        purchase_type: purchaseMode,
       });
 
-      if (res.ok) {
-        alert(`${quantity} copy(ies) added to cart!`);
-        navigate("/purchase");
-      } else {
-        const data = await res.json();
-        alert(data.message);
-      }
+      alert(`${quantity} copy(ies) added to cart!`);
+      navigate("/purchase");
     } catch (error) {
-      alert("Error adding to cart");
+      alert(error instanceof Error ? error.message : "Error adding to cart");
     }
   };
 

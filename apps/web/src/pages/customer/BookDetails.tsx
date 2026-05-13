@@ -26,7 +26,7 @@ export default function BookDetails() {
           books = booksResponse;
         }
 
-        const foundBook = books.find((b: any) => b.id === id || b.id === parseInt(id));
+        const foundBook = books.find((b: any) => b.id === id);
         if (foundBook) {
           setBook(foundBook);
         }
@@ -84,6 +84,12 @@ export default function BookDetails() {
     );
   }
 
+  // Calculate average rating from reviews
+  const avgRating = book.reviews && book.reviews.length > 0
+    ? Math.round((book.reviews.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / book.reviews.length) * 10) / 10
+    : 0;
+  const reviewCount = book.reviews?.length || 0;
+
   return (
     <div className="min-h-screen bg-background relative">
       <DashboardSidebar />
@@ -104,7 +110,7 @@ export default function BookDetails() {
             {/* Book Cover */}
             <div className="md:col-span-1">
               <img
-                src={book.cover}
+                src={book.coverImage || '/placeholder-book.png'}
                 alt={book.title}
                 className="w-full h-auto rounded-lg shadow-lg"
               />
@@ -113,21 +119,21 @@ export default function BookDetails() {
             {/* Book Details */}
             <div className="md:col-span-2">
               <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
-              <p className="text-lg text-muted-foreground mb-4">by {book.author}</p>
+              <p className="text-lg text-muted-foreground mb-4">by {book.authors?.[0]?.name || 'Unknown Author'}</p>
 
               {/* Rating */}
               <div className="flex items-center gap-2 mb-6">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-5 w-5 ${i < book.rating
+                    className={`h-5 w-5 ${i < Math.floor(avgRating)
                       ? "fill-star text-star"
                       : "fill-muted text-muted"
                       }`}
                   />
                 ))}
                 <span className="text-sm text-muted-foreground ml-2">
-                  {book.rating}.0 ({book.rating * 100 + Math.random() * 50} reviews)
+                  {avgRating.toFixed(1)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})
                 </span>
               </div>
 
@@ -135,11 +141,11 @@ export default function BookDetails() {
               <div className="flex gap-4 mb-6">
                 <div>
                   <p className="text-sm text-muted-foreground">Genre</p>
-                  <p className="font-semibold">{book.genre}</p>
+                  <p className="font-semibold">{book.category?.name || 'Fiction'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Copies</p>
-                  <p className="font-semibold">{book.total_copies}</p>
+                  <p className="font-semibold">{book.stock || 0}</p>
                 </div>
               </div>
 
@@ -147,7 +153,7 @@ export default function BookDetails() {
               <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-muted-foreground">Available for Purchase</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {book.available_copies} copies available
+                  {book.stock || 0} copies available
                 </p>
               </div>
 
@@ -163,40 +169,21 @@ export default function BookDetails() {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-4">Purchase Options</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {book.type === "offline" && (
-                      <div
-                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${purchaseMode === "offline"
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
-                          }`}
-                        onClick={() => setPurchaseMode("offline")}
-                      >
-                        <h4 className="font-semibold mb-2">Physical Book</h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Buy the physical book for offline reading
-                        </p>
-                        <p className="text-xl font-bold text-primary">
-                          ₹{book.offline_price}
-                        </p>
-                      </div>
-                    )}
-                    {book.type === "ebook" && (
-                      <div
-                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${purchaseMode === "online"
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
-                          }`}
-                        onClick={() => setPurchaseMode("online")}
-                      >
-                        <h4 className="font-semibold mb-2">Online Reading</h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Borrow for online reading (14 days return deadline)
-                        </p>
-                        <p className="text-xl font-bold text-primary">
-                          ₹{book.online_price}
-                        </p>
-                      </div>
-                    )}
+                    <div
+                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${purchaseMode === "offline"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
+                        }`}
+                      onClick={() => setPurchaseMode("offline")}
+                    >
+                      <h4 className="font-semibold mb-2">Purchase</h4>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Buy this book
+                      </p>
+                      <p className="text-xl font-bold text-primary">
+                        ₹{book.currentPrice || book.basePrice}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -204,7 +191,7 @@ export default function BookDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Price per copy</p>
                     <p className="text-4xl font-bold text-primary">
-                      ₹{purchaseMode === "online" ? book.online_price : book.offline_price}
+                      ₹{book.currentPrice || book.basePrice}
                     </p>
                   </div>
 
@@ -222,12 +209,12 @@ export default function BookDetails() {
                       <input
                         type="number"
                         min="1"
-                        max={book.available_copies}
+                        max={book.stock || 1}
                         value={quantity}
                         onChange={(e) =>
                           setQuantity(
                             Math.min(
-                              book.available_copies,
+                              book.stock || 1,
                               Math.max(1, parseInt(e.target.value) || 1)
                             )
                           )
@@ -237,7 +224,7 @@ export default function BookDetails() {
                       <button
                         onClick={() =>
                           setQuantity(
-                            Math.min(book.available_copies, quantity + 1)
+                            Math.min(book.stock || 1, quantity + 1)
                           )
                         }
                         className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300"
@@ -250,14 +237,14 @@ export default function BookDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Total</p>
                     <p className="text-2xl font-bold">
-                      ₹{(purchaseMode === "online" ? book.online_price : book.offline_price) * quantity}
+                      ₹{(book.currentPrice || book.basePrice) * quantity}
                     </p>
                   </div>
                 </div>
 
                 <button
                   onClick={handleAddToCart}
-                  disabled={book.available_copies === 0}
+                  disabled={!book.stock || book.stock === 0}
                   className="mt-6 w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className="h-5 w-5" />

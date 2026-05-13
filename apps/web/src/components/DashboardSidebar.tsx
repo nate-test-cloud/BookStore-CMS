@@ -22,7 +22,6 @@ const mainItems = [
   { icon: Clock, label: "Returns", to: "/return-deadline" },
   { icon: Monitor, label: "Reading", to: "/online-read" },
   { icon: ShoppingCart, label: "Purchases", to: "/purchase" },
-  { icon: Bell, label: "Notifications", to: "/notifications" },
 ];
 
 const toolItems = [

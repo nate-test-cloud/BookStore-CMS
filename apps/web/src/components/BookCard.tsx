@@ -3,17 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { apiPost } from "@/lib/api-client";
 
 interface BookCardProps {
-  id: number;
-  cover: string;
+  id: string;
+  isbn: string;
+  coverImage?: string;
   title: string;
-  author: string;
-  rating: number;
-  price: number;
-  available_copies: number;
+  authors?: Array<{ id: string; name: string }>;
+  rating?: number;
+  currentPrice?: number;
+  basePrice?: number;
+  stock?: number;
 }
 
-const BookCard = ({ id, cover, title, author, rating, price, available_copies }: BookCardProps) => {
+const BookCard = ({ id, isbn, coverImage, title, authors, rating = 0, currentPrice, basePrice, stock = 0 }: BookCardProps) => {
   const navigate = useNavigate();
+  const price = currentPrice || basePrice || 0;
+  const author = authors?.[0]?.name || 'Unknown Author';
 
   const handleDetailsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -53,7 +57,7 @@ const BookCard = ({ id, cover, title, author, rating, price, available_copies }:
     >
       <div className="aspect-[2/3] overflow-hidden relative">
         <img
-          src={cover}
+          src={coverImage || '/placeholder-book.png'}
           alt={title}
           loading="lazy"
           className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-108"
@@ -62,7 +66,7 @@ const BookCard = ({ id, cover, title, author, rating, price, available_copies }:
 
         {/* Action buttons */}
         <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-400">
-          {available_copies > 0 ? (
+          {stock > 0 ? (
             <button
               onClick={handleIssue}
               className="h-8 w-8 rounded-lg bg-card/80 backdrop-blur-sm flex items-center justify-center hover:bg-primary hover:text-primary-foreground text-muted-foreground shadow-lg"
@@ -100,18 +104,18 @@ const BookCard = ({ id, cover, title, author, rating, price, available_copies }:
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
-              className={`h-3.5 w-3.5 transition-all duration-300 ${i < rating
-                  ? "fill-star text-star group-hover:scale-110"
-                  : "fill-muted text-muted"
+              className={`h-3.5 w-3.5 transition-all duration-300 ${i < Math.floor(rating || 0)
+                ? "fill-star text-star group-hover:scale-110"
+                : "fill-muted text-muted"
                 }`}
               style={{ transitionDelay: `${i * 40}ms` }}
             />
           ))}
-          <span className="text-[11px] text-muted-foreground ml-1.5 font-medium">{rating}.0</span>
+          <span className="text-[11px] text-muted-foreground ml-1.5 font-medium">{(rating || 0).toFixed(1)}</span>
         </div>
-        <p className="text-sm font-medium text-primary">₹{price}</p>
+        <p className="text-sm font-medium text-primary">₹{price || 0}</p>
         <p className="text-xs text-muted-foreground">
-          {available_copies > 0 ? `${available_copies} available` : "Out of stock"}
+          {stock > 0 ? `${stock} available` : "Out of stock"}
         </p>
       </div>
     </div>

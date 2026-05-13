@@ -19,6 +19,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@workspace/api-client-react": [
+        "../../packages/api-client-react/src/index.ts"
       ]
     },
     "skipLibCheck": true,

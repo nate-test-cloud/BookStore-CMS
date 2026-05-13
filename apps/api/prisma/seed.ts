@@ -188,11 +188,11 @@ async function main() {
                 title: bookData.title,
                 subtitle: bookData.subtitle,
                 description: bookData.description,
-                categoryId: bookData.categoryId === 1 ? fictionCategory.id : 
-                           bookData.categoryId === 2 ? techCategory.id :
-                           bookData.categoryId === 3 ? fictionCategory.id :
-                           bookData.categoryId === 4 ? nonFictionCategory.id :
-                           bookData.categoryId === 5 ? fictionCategory.id : fictionCategory.id,
+                categoryId: bookData.categoryId === 1 ? fictionCategory.id :
+                    bookData.categoryId === 2 ? techCategory.id :
+                        bookData.categoryId === 3 ? fictionCategory.id :
+                            bookData.categoryId === 4 ? nonFictionCategory.id :
+                                bookData.categoryId === 5 ? fictionCategory.id : fictionCategory.id,
                 publisherId: publishers[bookData.publisherId % publishers.length].id,
                 basePrice: bookData.basePrice,
                 discountPercent: Math.floor(Math.random() * 20),

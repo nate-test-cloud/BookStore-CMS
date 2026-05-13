@@ -7,16 +7,25 @@ import Landing from "./pages/Landing.tsx";
 import Login from "./pages/Login.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import ForgotPass from "./pages/ForgotPass.tsx";
-import Index from "./pages/Index.tsx";
+import Index from "./pages/customer/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import OnlineRead from "./pages/OnlineRead.tsx";
-import Purchase from "./pages/Purchase.tsx";
-import Issued from "./pages/Issued.tsx";
-import Settings from "./pages/Settings.tsx";
-import ReturnDeadline from "./pages/ReturnDeadline.tsx";
-import Notifications from "./pages/Notifications.tsx";
+import OnlineRead from "./pages/customer/OnlineRead.tsx";
+import Purchase from "./pages/customer/Purchase.tsx";
+import Issued from "./pages/customer/Issued.tsx";
+import Settings from "./pages/customer/Settings.tsx";
+import ReturnDeadline from "./pages/customer/ReturnDeadline.tsx";
+import Notifications from "./pages/customer/Notifications.tsx";
 import Search from "./pages/Search.tsx";
-import BookDetails from "./pages/BookDetails.tsx";
+import BookDetails from "./pages/customer/BookDetails.tsx";
+import AdminDashboard from "./pages/admin/dashboard.tsx";
+import AdminBooks from "./pages/admin/books.tsx";
+import AdminAnalytics from "./pages/admin/analytics.tsx";
+import AdminSuppliers from "./pages/admin/suppliers.tsx";
+import AdminCustomers from "./pages/admin/customers.tsx";
+import AdminPOS from "./pages/admin/pos.tsx";
+import AdminOrders from "./pages/admin/orders.tsx";
+import AdminInventory from "./pages/admin/inventory.tsx";
+import AdminSettings from "./pages/admin/settings.tsx";
 
 //Start here
 const queryClient = new QueryClient();
@@ -42,6 +51,15 @@ const App = () => (
           <Route path="/issued" element={<Issued />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/books" element={<AdminBooks />} />
+          <Route path="/admin/inventory" element={<AdminInventory />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/pos" element={<AdminPOS />} />
+          <Route path="/admin/customers" element={<AdminCustomers />} />
+          <Route path="/admin/suppliers" element={<AdminSuppliers />} />
+          <Route path="/admin/analytics" element={<AdminAnalytics />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

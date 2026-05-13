@@ -191,4 +191,20 @@ export class ApiCompatibilityController {
     async markNotificationRead(@Param('id') id: string) {
         return { message: 'Notification marked as read' }; // Placeholder
     }
+
+    // =============================================
+    // ADMIN ROUTES - ALIASES
+    // =============================================
+
+    @Get('admin/notifications')
+    @UseGuards(JwtAuthGuard)
+    async getAdminNotifications(@CurrentUser() user: any) {
+        return { notifications: [] }; // Placeholder for admin notifications
+    }
+
+    @Put('admin/notifications/:id/read')
+    @UseGuards(JwtAuthGuard)
+    async markAdminNotificationRead(@Param('id') id: string) {
+        return { message: 'Admin notification marked as read' }; // Placeholder
+    }
 }

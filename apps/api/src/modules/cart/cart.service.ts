@@ -52,11 +52,7 @@ export class CartService {
         }
 
         // Check if book is in stock
-        const inventory = await this.prisma.inventory.findFirst({
-            where: { bookId: dto.bookId },
-        });
-
-        if (!inventory || inventory.quantity < dto.quantity) {
+        if (book.stock < dto.quantity) {
             throw new BadRequestException('Insufficient stock available');
         }
 
@@ -142,11 +138,11 @@ export class CartService {
         }
 
         // Check stock
-        const inventory = await this.prisma.inventory.findFirst({
-            where: { bookId: cartItem.bookId },
+        const book = await this.prisma.book.findUnique({
+            where: { id: cartItem.bookId },
         });
 
-        if (!inventory || inventory.quantity < quantity) {
+        if (!book || book.stock < quantity) {
             throw new BadRequestException('Insufficient stock available');
         }
 
@@ -199,11 +195,7 @@ export class CartService {
 
         for (const item of cartItems) {
             // Check stock again
-            const inventory = await this.prisma.inventory.findFirst({
-                where: { bookId: item.bookId },
-            });
-
-            if (!inventory || inventory.quantity < item.quantity) {
+            if (item.book.stock < item.quantity) {
                 throw new BadRequestException(
                     `Insufficient stock for book: ${item.book.title}`,
                 );
@@ -219,10 +211,10 @@ export class CartService {
                 total: itemTotal,
             });
 
-            // Reduce inventory
-            await this.prisma.inventory.update({
-                where: { id: inventory.id },
-                data: { quantity: { decrement: item.quantity } },
+            // Reduce book stock
+            await this.prisma.book.update({
+                where: { id: item.bookId },
+                data: { stock: { decrement: item.quantity } },
             });
         }
 
@@ -233,9 +225,11 @@ export class CartService {
                 orderNumber: `ORD-${Date.now()}`,
                 subtotal: total,
                 totalAmount: total,
-                status: 'PENDING',
+                status: 'PAID',
+                paymentStatus: 'PAID',
                 paymentMethod: dto.paymentMethod as any,
-                shippingAddress: dto.shippingAddress,
+                shippingAddress: dto.shippingAddress || 'Digital Delivery',
+                paidAt: new Date(),
                 items: {
                     createMany: {
                         data: orderItems,
@@ -244,6 +238,31 @@ export class CartService {
             },
             include: { items: true },
         });
+
+        // Create IssuedBooks for each item purchased (for online reading)
+        for (const item of cartItems) {
+            // Get total pages for the book
+            const bookContent = await this.prisma.bookContent.findMany({
+                where: { bookId: item.bookId },
+                select: { pageNumber: true },
+                orderBy: { pageNumber: 'desc' },
+                take: 1,
+            });
+
+            const totalPages = bookContent.length > 0 ? bookContent[0].pageNumber : 100;
+
+            // Create issued book record for each quantity purchased
+            for (let i = 0; i < item.quantity; i++) {
+                await this.prisma.issuedBook.create({
+                    data: {
+                        userId,
+                        bookId: item.bookId,
+                        orderId: order.id,
+                        totalPages,
+                    },
+                });
+            }
+        }
 
         // Clear cart
         await this.prisma.cartItem.deleteMany({

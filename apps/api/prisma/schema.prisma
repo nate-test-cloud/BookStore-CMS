@@ -37,6 +37,7 @@ model User {
   reviews           Review[]
   wishlistItems     WishlistItem[]
   cartItems         CartItem[]
+  issuedBooks       IssuedBook[]
   loyaltyAccount    LoyaltyAccount?
   salesTransactions Transaction[]
   inventoryAdjustments InventoryAdjustment[]
@@ -150,6 +151,8 @@ model Book {
   reviews           Review[]
   wishlistItems     WishlistItem[]
   cartItems         CartItem[]
+  issuedBooks       IssuedBook[]
+  bookContents      BookContent[]
   
   // Timestamps
   createdAt         DateTime @default(now())
@@ -385,6 +388,9 @@ model Order {
   
   // Items
   items             OrderItem[]
+  
+  // Issued books for online reading
+  issuedBooks       IssuedBook[]
   
   // Returns
   returns           Return[]
@@ -663,6 +669,48 @@ model Review {
   @@index([bookId])
   @@index([userId])
   @@index([rating])
+}
+
+// =====================================================
+// ISSUED BOOKS & ONLINE READING
+// =====================================================
+
+model IssuedBook {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  bookId            String
+  book              Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  currentPage       Int      @default(1)
+  totalPages        Int
+  lastReadAt        DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([userId, bookId])
+  @@index([userId])
+  @@index([bookId])
+}
+
+model BookContent {
+  id                String   @id @default(cuid())
+  bookId            String
+  book              Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  
+  pageNumber        Int
+  content           String    // Full page content (paragraphs)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([bookId, pageNumber])
+  @@index([bookId])
 }
 
 // =====================================================

@@ -17,11 +17,11 @@ import { useNavigate } from "react-router-dom";
 import { setSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 
 const mainItems = [
-  { icon: LayoutDashboard, label: "Dashboard", to: "/index" },
+  { icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" },
   { icon: BookCheck, label: "Issued", to: "/issued" },
   { icon: Clock, label: "Returns", to: "/return-deadline" },
   { icon: Monitor, label: "Reading", to: "/online-read" },
-  { icon: ShoppingCart, label: "Purchases", to: "/purchase" },
+  { icon: ShoppingCart, label: "Cart", to: "/cart" },
 ];
 
 const toolItems = [

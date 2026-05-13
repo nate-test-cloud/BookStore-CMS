@@ -10,6 +10,7 @@ import ForgotPass from "./pages/ForgotPass.tsx";
 import Index from "./pages/customer/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import OnlineRead from "./pages/customer/OnlineRead.tsx";
+import BookReader from "./pages/customer/BookReader.tsx";
 import Purchase from "./pages/customer/Purchase.tsx";
 import Issued from "./pages/customer/Issued.tsx";
 import Settings from "./pages/customer/Settings.tsx";
@@ -26,6 +27,7 @@ import AdminPOS from "./pages/admin/pos.tsx";
 import AdminOrders from "./pages/admin/orders.tsx";
 import AdminInventory from "./pages/admin/inventory.tsx";
 import AdminSettings from "./pages/admin/settings.tsx";
+import AdminNotifications from "./pages/admin/notifications.tsx";
 
 //Start here
 const queryClient = new QueryClient();
@@ -39,7 +41,7 @@ const App = () => (
         <Routes>
           {/* ALL ROUTES TO APPLICATION */}
           <Route path="/" element={<Landing />} />
-          <Route path="/index" element={<Index />} />
+          <Route path="/dashboard" element={<Index />} />
           <Route path="/search" element={<Search />} />
           <Route path="/book-details/:id" element={<BookDetails />} />
           <Route path="/login" element={<Login />} />
@@ -47,7 +49,9 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPass />} />
           <Route path="/return-deadline" element={<ReturnDeadline />} />
           <Route path="/online-read" element={<OnlineRead />} />
+          <Route path="/book-reader/:bookId" element={<BookReader />} />
           <Route path="/purchase" element={<Purchase />} />
+          <Route path="/cart" element={<Purchase />} />
           <Route path="/issued" element={<Issued />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/notifications" element={<Notifications />} />
@@ -60,6 +64,7 @@ const App = () => (
           <Route path="/admin/suppliers" element={<AdminSuppliers />} />
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/notifications" element={<AdminNotifications />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

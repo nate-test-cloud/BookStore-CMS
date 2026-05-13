@@ -1,9 +1,18 @@
+import { IsString, IsNumber, IsPositive, IsArray, ValidateNested, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+
 export class CreateCartItemDto {
+    @IsString()
     bookId: string;
+
+    @IsNumber()
+    @IsPositive()
     quantity: number;
 }
 
 export class UpdateCartItemDto {
+    @IsNumber()
+    @IsPositive()
     quantity: number;
 }
 
@@ -26,11 +35,25 @@ export class CartResponseDto {
     totalPrice: number;
 }
 
+class CheckoutItemDto {
+    @IsString()
+    bookId: string;
+
+    @IsNumber()
+    @IsPositive()
+    quantity: number;
+}
+
 export class CheckoutDto {
-    items: Array<{
-        bookId: string;
-        quantity: number;
-    }>;
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CheckoutItemDto)
+    items: CheckoutItemDto[];
+
+    @IsString()
     paymentMethod: string;
+
+    @IsOptional()
+    @IsString()
     shippingAddress?: string;
 }

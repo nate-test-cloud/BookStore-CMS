@@ -4,13 +4,14 @@ import DashboardSidebar from "@/components/DashboardSidebar";
 import TopSearchBar from "@/components/TopSearchBar";
 import { Star, ArrowLeft, ShoppingCart } from "lucide-react";
 import { apiGet, apiPost } from "@/lib/api-client";
+import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 
 export default function BookDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const sidebarCollapsed = useSidebarCollapsed();
   const [book, setBook] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [purchaseMode, setPurchaseMode] = useState("offline");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,21 +45,10 @@ export default function BookDetails() {
   const handleAddToCart = async () => {
     if (!book) return;
 
-    // Check if purchase option is valid for the book type
-    if (book.type === "ebook" && purchaseMode === "offline") {
-      alert("This is an eBook and can only be purchased for online reading");
-      return;
-    }
-    if (book.type === "offline" && purchaseMode === "online") {
-      alert("This offline book cannot be purchased for online reading");
-      return;
-    }
-
     try {
       await apiPost("/cart", {
-        book_id: book.id,
+        bookId: book.id,
         quantity,
-        purchase_type: purchaseMode,
       });
 
       alert(`${quantity} copy(ies) added to cart!`);
@@ -94,7 +84,7 @@ export default function BookDetails() {
     <div className="min-h-screen bg-background relative">
       <DashboardSidebar />
 
-      <div className="lg:ml-[272px] relative z-10">
+      <div style={{ marginLeft: "var(--sidebar-width, 272px)" }} className="relative z-10">
         <TopSearchBar />
 
         <main className="p-6">
@@ -165,28 +155,6 @@ export default function BookDetails() {
 
               {/* Price and Cart Section */}
               <div className="border-t pt-6">
-                {/* Purchase Mode Selection */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Purchase Options</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${purchaseMode === "offline"
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
-                        }`}
-                      onClick={() => setPurchaseMode("offline")}
-                    >
-                      <h4 className="font-semibold mb-2">Purchase</h4>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Buy this book
-                      </p>
-                      <p className="text-xl font-bold text-primary">
-                        ₹{book.currentPrice || book.basePrice}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="flex items-end gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Price per copy</p>

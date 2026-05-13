@@ -7,6 +7,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { ApiCompatibilityModule } from './modules/api-compatibility/api-compatibility.module';
 import { CartModule } from './modules/cart/cart.module';
+import { BooksReadingModule } from './modules/books-reading/books-reading.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -27,6 +28,7 @@ import { AppService } from './app.service';
     InventoryModule,
     OrdersModule,
     CartModule,
+    BooksReadingModule,
     ApiCompatibilityModule,
 
     // TODO: Add more modules

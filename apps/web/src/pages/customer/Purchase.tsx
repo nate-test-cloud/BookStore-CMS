@@ -64,12 +64,11 @@ export default function Purchase() {
           quantity: item.quantity,
         })),
         paymentMethod: "CARD",
-        shippingAddress: "Default Address",
       };
-      
+
       const response = await apiPost('/cart/checkout', checkoutData);
       alert("Order placed successfully!");
-      navigate("/purchases");
+      navigate("/issued");
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Checkout failed";
       alert(errorMsg);

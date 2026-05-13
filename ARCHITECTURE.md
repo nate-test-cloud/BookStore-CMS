@@ -47,11 +47,6 @@ BookStore CMS is a comprehensive, enterprise-grade bookstore management system b
 │  - API Client, Hooks, Stores                │
 └────────────────────┬────────────────────────┘
                      │
-┌────────────────────▼────────────────────────┐
-│    API Gateway (Nginx Reverse Proxy)        │
-│  - Request routing, Load balancing          │
-│  - SSL/TLS termination, Rate limiting       │
-└────────────────────┬────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────┐
 │      Backend API (NestJS)                   │
@@ -248,12 +243,6 @@ Refresh Token Rotation:
    - Payment transaction records
    - Admin activity monitoring
 
-## File Upload Strategy
-
-- **Cover Images**: Cloudinary (CDN, resizing, optimization)
-- **Documents**: S3-compatible storage
-- **CSV Imports**: Local temporary storage with validation
-
 ## Caching Strategy
 
 ```
@@ -265,25 +254,6 @@ Cache Layers:
    - Leaderboards (1 hour)
    - Session data (TTL from JWT)
 3. Database Query Cache
-```
-
-## Deployment Architecture
-
-```
-Internet
-  │
-  └─► Nginx (Reverse Proxy, Load Balancer, SSL)
-       │
-       ├─► Backend API (Docker container)
-       │    └─► Port 3000
-       │
-       ├─► Frontend (Next.js, Docker container)
-       │    └─► Port 3001
-       │
-       └─► Services
-            ├─► PostgreSQL (Port 5432)
-            ├─► Redis (Port 6379)
-            └─► Meilisearch (Port 7700)
 ```
 
 ## Directory Structure
@@ -429,10 +399,3 @@ BookStore-CMS/
    - Database query performance
    - Cache hit rates
 
-## Next Steps
-
-See individual module documentation for:
-- API endpoints and schemas
-- Database queries
-- Frontend component specifications
-- Deployment procedures

@@ -239,7 +239,7 @@ export class CartService {
             include: { items: true },
         });
 
-        // Create IssuedBooks for each item purchased (for online reading)
+        // Create or update IssuedBooks for each item purchased (for online reading)
         for (const item of cartItems) {
             // Get total pages for the book
             const bookContent = await this.prisma.bookContent.findMany({
@@ -251,17 +251,25 @@ export class CartService {
 
             const totalPages = bookContent.length > 0 ? bookContent[0].pageNumber : 100;
 
-            // Create issued book record for each quantity purchased
-            for (let i = 0; i < item.quantity; i++) {
-                await this.prisma.issuedBook.create({
-                    data: {
+            // Create or update issued book record (one per user-book combination)
+            await this.prisma.issuedBook.upsert({
+                where: {
+                    userId_bookId: {
                         userId,
                         bookId: item.bookId,
-                        orderId: order.id,
-                        totalPages,
                     },
-                });
-            }
+                },
+                create: {
+                    userId,
+                    bookId: item.bookId,
+                    orderId: order.id,
+                    totalPages,
+                },
+                update: {
+                    orderId: order.id,
+                    lastReadAt: new Date(),
+                },
+            });
         }
 
         // Clear cart

@@ -19,23 +19,15 @@ export default function BookDetails() {
       try {
         await apiGet("/auth/me");
 
-        const booksResponse = await apiGet("/books");
-        let books = [];
-        if (booksResponse.books) {
-          books = booksResponse.books;
-        } else if (Array.isArray(booksResponse)) {
-          books = booksResponse;
-        }
-
-        const foundBook = books.find((b: any) => b.id === id);
-        if (foundBook) {
-          setBook(foundBook);
-        }
+        // Fetch the specific book by ID instead of fetching all books
+        const bookData = await apiGet(`/books/${id}`);
+        setBook(bookData);
 
         setLoading(false);
       } catch (error) {
         console.error("Error fetching book:", error);
-        navigate("/login");
+        setLoading(false);
+        // Don't redirect to login on 404, stay on page with "Book not found"
       }
     };
 
@@ -52,7 +44,7 @@ export default function BookDetails() {
       });
 
       alert(`${quantity} copy(ies) added to cart!`);
-      navigate("/purchase");
+      navigate("/cart");
     } catch (error) {
       alert(error instanceof Error ? error.message : "Error adding to cart");
     }

@@ -84,18 +84,20 @@ export default function BookReader() {
 
                 <main className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <div className="bg-white border-b p-4 flex items-center justify-between">
-                        <button
-                            onClick={() => navigate("/online-read")}
-                            className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                        >
-                            <Home className="h-5 w-5" />
-                            Back to Library
-                        </button>
-                        <h1 className="text-2xl font-bold">{bookInfo?.title}</h1>
-                        <div className="text-sm text-gray-600">
-                            Page {currentPage} of {totalPages}
+                    <div className="bg-white border-b p-6">
+                        <div className="flex items-start justify-between mb-4">
+                            <button
+                                onClick={() => navigate("/online-read")}
+                                className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                            >
+                                <Home className="h-5 w-5" />
+                                Back to Library
+                            </button>
+                            <div className="text-right text-sm text-gray-600">
+                                Page {currentPage} of {totalPages}
+                            </div>
                         </div>
+                        <p>{bookInfo?.title}</p>
                     </div>
 
                     {/* Content Area */}

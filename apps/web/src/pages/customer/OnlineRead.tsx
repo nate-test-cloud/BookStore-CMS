@@ -13,7 +13,11 @@ export default function OnlineRead() {
     const fetchIssuedBooks = async () => {
       try {
         const data = await apiGet('/issued');
-        setIssuedBooks(data.issuedBooks || []);
+        if (data.issuedBooks) {
+          setIssuedBooks(data.issuedBooks);
+        } else {
+          setIssuedBooks([]);
+        }
       } catch (error) {
         console.error("Error fetching issued books:", error);
         navigate("/login");
@@ -44,25 +48,40 @@ export default function OnlineRead() {
           {issuedBooks.length === 0 ? (
             <p className="text-gray-500">No books in your library</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {issuedBooks.map((book: any) => (
-                <div key={book.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition">
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 h-32 flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">{book.title}</span>
+                <div key={book.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition max-w-[280px] mx-auto">
+                  <div className="relative bg-gradient-to-r from-blue-500 to-blue-600 overflow-hidden" style={{ aspectRatio: '2/3' }}>
+                    {book.book?.coverImage ? (
+                      <img
+                        src={book.book.coverImage}
+                        alt={book.book.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-3">
+                        <span className="text-white text-xs font-medium text-center">
+                          {book.book?.title || "Book"}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-2">{book.title}</h3>
-                    {book.authors && book.authors.length > 0 && (
-                      <p className="text-gray-600 text-sm mb-2">
-                        By {book.authors.map((a: any) => a.name).join(', ')}
+                  <div className="p-3">
+                    <h3 className="font-semibold text-lg mb-2">{book.book?.title || "Book"}</h3>
+                    {book.book?.authors && book.book.authors.length > 0 && (
+                      <p className="text-gray-600 text-xs mb-2">
+                        By {book.book.authors.map((a: any) => a.name).join(', ')}
                       </p>
                     )}
-                    <p className="text-gray-600 text-sm mb-3">
-                      ISBN: {book.isbn}
+                    <p className="text-gray-600 text-xs mb-2">
+                      ISBN: {book.book?.isbn || 'N/A'}
+                    </p>
+                    <p className="text-gray-600 text-xs mb-2">
+                      Reading Progress: Page {book.currentPage} of {book.totalPages}
                     </p>
                     <a
-                      href={`/book-reader/${book.id}`}
-                      className="block text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                      href={`/book-reader/${book.bookId}`}
+                      className="block text-center bg-blue-600 text-white py-1.5 text-sm rounded hover:bg-blue-300 transition"
                     >
                       Read Online
                     </a>

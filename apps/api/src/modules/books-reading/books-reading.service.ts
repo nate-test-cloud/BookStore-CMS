@@ -81,7 +81,18 @@ export class BooksReadingService {
         // Check if user has access to this book (has issued it)
         const issuedBook = await this.prisma.issuedBook.findFirst({
             where: { userId, bookId },
-            include: { book: true },
+            include: {
+                book: {
+                    include: {
+                        authors: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
 
         if (!issuedBook) {
@@ -98,6 +109,13 @@ export class BooksReadingService {
             currentPage: issuedBook.currentPage,
             totalPages,
             lastReadAt: issuedBook.lastReadAt,
+            book: {
+                id: issuedBook.book.id,
+                title: issuedBook.book.title,
+                isbn: issuedBook.book.isbn,
+                authors: issuedBook.book.authors,
+                coverImage: issuedBook.book.coverImage,
+            },
             message: `Book "${issuedBook.book.title}" loaded. Total pages: ${totalPages}`,
         };
     }

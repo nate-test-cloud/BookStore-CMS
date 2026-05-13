@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Star, BookmarkPlus, BookOpen, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { apiPost } from "@/lib/api-client";
@@ -12,10 +13,13 @@ interface BookCardProps {
   currentPrice?: number;
   basePrice?: number;
   stock?: number;
+  onFavouriteChange?: (isFavourite: boolean) => void;
 }
 
-const BookCard = ({ id, isbn, coverImage, title, authors, rating = 0, currentPrice, basePrice, stock = 0 }: BookCardProps) => {
+const BookCard = ({ id, isbn, coverImage, title, authors, rating = 0, currentPrice, basePrice, stock = 0, onFavouriteChange }: BookCardProps) => {
   const navigate = useNavigate();
+  const [isFavourite, setIsFavourite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const price = currentPrice || basePrice || 0;
   const author = authors?.[0]?.name || 'Unknown Author';
 
@@ -28,25 +32,31 @@ const BookCard = ({ id, isbn, coverImage, title, authors, rating = 0, currentPri
     navigate(`/book-details/${id}`);
   };
 
-  const handleIssue = async (e: React.MouseEvent) => {
+  const handleFavourite = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsLoading(true);
     try {
-      await apiPost(`/books/${id}/issue`);
-      alert("Book issued successfully!");
-      window.location.reload();
+      await apiPost(`/books/favourite/${id}`);
+      setIsFavourite(true);
+      onFavouriteChange?.(true);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Error issuing book");
+      alert(error instanceof Error ? error.message : "Error adding book to favourites");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handlePurchase = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsLoading(true);
     try {
       await apiPost(`/books/${id}/purchase`);
       alert("Book purchased successfully!");
-      window.location.reload();
+      // You might want to refresh the cart or navigate to orders instead
     } catch (error) {
       alert(error instanceof Error ? error.message : "Error purchasing book");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -68,16 +78,21 @@ const BookCard = ({ id, isbn, coverImage, title, authors, rating = 0, currentPri
         <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-400">
           {stock > 0 ? (
             <button
-              onClick={handleIssue}
-              className="h-8 w-8 rounded-lg bg-card/80 backdrop-blur-sm flex items-center justify-center hover:bg-primary hover:text-primary-foreground text-muted-foreground shadow-lg"
-              title="Issue Book"
+              onClick={handleFavourite}
+              disabled={isLoading || isFavourite}
+              className={`h-8 w-8 rounded-lg backdrop-blur-sm flex items-center justify-center shadow-lg transition-colors ${isFavourite
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card/80 text-muted-foreground hover:bg-primary hover:text-primary-foreground'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              title={isFavourite ? "Added to Favourites" : "Add to Favourites"}
             >
-              <BookOpen className="h-4 w-4" />
+              <BookmarkPlus className="h-4 w-4" />
             </button>
           ) : (
             <button
               onClick={handlePurchase}
-              className="h-8 w-8 rounded-lg bg-card/80 backdrop-blur-sm flex items-center justify-center hover:bg-primary hover:text-primary-foreground text-muted-foreground shadow-lg"
+              disabled={isLoading}
+              className="h-8 w-8 rounded-lg bg-card/80 backdrop-blur-sm flex items-center justify-center hover:bg-primary hover:text-primary-foreground text-muted-foreground shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               title="Purchase Book"
             >
               <ShoppingCart className="h-4 w-4" />

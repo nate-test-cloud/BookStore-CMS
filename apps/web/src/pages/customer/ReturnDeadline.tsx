@@ -50,7 +50,7 @@ export default function ReturnDeadline() {
                   (new Date(book.returnDeadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
                 );
                 const isOverdue = daysLeft < 0;
-                
+
                 return (
                   <div key={book.id} className="bg-white p-4 rounded-lg shadow">
                     <div className="flex justify-between items-start">
@@ -59,13 +59,12 @@ export default function ReturnDeadline() {
                         <p className="text-gray-600 text-sm">ISBN: {book.isbn}</p>
                       </div>
                       <div className="text-right">
-                        <span className={`px-3 py-1 rounded text-sm font-medium ${
-                          isOverdue 
-                            ? 'bg-red-100 text-red-800'
-                            : daysLeft <= 3
+                        <span className={`px-3 py-1 rounded text-sm font-medium ${isOverdue
+                          ? 'bg-red-100 text-red-800'
+                          : daysLeft <= 3
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-green-100 text-green-800'
-                        }`}>
+                          }`}>
                           {isOverdue ? 'OVERDUE' : `${daysLeft} days left`}
                         </span>
                       </div>

@@ -39,7 +39,7 @@ export class InventoryController {
 
     @Post('books')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.INVENTORY_STAFF)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER, UserRole.INVENTORY_STAFF)
     async createBook(@Body() createBookDto: CreateBookDto) {
         return this.inventoryService.createBook(createBookDto);
     }
@@ -66,14 +66,14 @@ export class InventoryController {
 
     @Put('books/:id')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.INVENTORY_STAFF)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER, UserRole.INVENTORY_STAFF)
     async updateBook(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
         return this.inventoryService.updateBook(id, updateBookDto);
     }
 
     @Delete('books/:id')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async deleteBook(@Param('id') id: string) {
         return this.inventoryService.deleteBook(id);
     }
@@ -84,7 +84,7 @@ export class InventoryController {
 
     @Post('categories')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
         return this.inventoryService.createCategory(createCategoryDto);
     }
@@ -101,7 +101,7 @@ export class InventoryController {
 
     @Put('categories/:id')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async updateCategory(
         @Param('id') id: string,
         @Body() updateCategoryDto: UpdateCategoryDto,
@@ -122,7 +122,7 @@ export class InventoryController {
 
     @Post('authors')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async createAuthor(@Body() createAuthorDto: CreateAuthorDto) {
         return this.inventoryService.createAuthor(createAuthorDto);
     }
@@ -142,7 +142,7 @@ export class InventoryController {
 
     @Put('authors/:id')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async updateAuthor(
         @Param('id') id: string,
         @Body() updateAuthorDto: UpdateAuthorDto,
@@ -163,7 +163,7 @@ export class InventoryController {
 
     @Post('publishers')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async createPublisher(@Body() createPublisherDto: CreatePublisherDto) {
         return this.inventoryService.createPublisher(createPublisherDto);
     }
@@ -183,7 +183,7 @@ export class InventoryController {
 
     @Put('publishers/:id')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async updatePublisher(
         @Param('id') id: string,
         @Body() updatePublisherDto: UpdatePublisherDto,
@@ -197,7 +197,7 @@ export class InventoryController {
 
     @Post('books/:id/adjust')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.INVENTORY_STAFF)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER, UserRole.INVENTORY_STAFF)
     async adjustInventory(
         @Param('id') id: string,
         @Body() adjustmentDto: AdjustInventoryDto,
@@ -213,7 +213,7 @@ export class InventoryController {
 
     @Post('books/:id/low-stock-alert')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async setLowStockAlert(
         @Param('id') id: string,
         @Body() alertDto: LowStockAlertDto,
@@ -223,7 +223,7 @@ export class InventoryController {
 
     @Get('low-stock-books')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.INVENTORY_STAFF)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER, UserRole.INVENTORY_STAFF)
     async getLowStockBooks() {
         return this.inventoryService.getLowStockBooks();
     }
@@ -234,7 +234,7 @@ export class InventoryController {
 
     @Get('valuation/summary')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async getInventoryValuation() {
         return this.inventoryService.getInventoryValuation();
     }

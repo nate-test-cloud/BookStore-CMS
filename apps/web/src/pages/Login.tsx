@@ -53,7 +53,7 @@ export default function Login() {
           localStorage.setItem('refreshToken', data.refreshToken);
         }
 
-        navigate("/index");
+        navigate("/dashboard");
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Login failed";
         alert(errorMessage);
@@ -85,8 +85,8 @@ export default function Login() {
               placeholder="Enter your email"
               disabled={loading}
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 disabled:opacity-50 ${errors.email
-                  ? "border-red-500 focus:ring-red-400"
-                  : "focus:ring-[#926d24]"
+                ? "border-red-500 focus:ring-red-400"
+                : "focus:ring-[#926d24]"
                 }`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -105,8 +105,8 @@ export default function Login() {
               placeholder="Enter your password"
               disabled={loading}
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 disabled:opacity-50 ${errors.password
-                  ? "border-red-500 focus:ring-red-400"
-                  : "focus:ring-[#926d24]"
+                ? "border-red-500 focus:ring-red-400"
+                : "focus:ring-[#926d24]"
                 }`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}

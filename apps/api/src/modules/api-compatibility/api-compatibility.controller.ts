@@ -207,4 +207,42 @@ export class ApiCompatibilityController {
     async markAdminNotificationRead(@Param('id') id: string) {
         return { message: 'Admin notification marked as read' }; // Placeholder
     }
+
+    // =============================================
+    // WISHLIST/FAVOURITE ROUTES - ALIASES
+    // =============================================
+
+    @Post('books/favourite/:id')
+    @UseGuards(JwtAuthGuard)
+    async addFavourite(@CurrentUser() user: any, @Param('id') bookId: string) {
+        return this.inventoryService.addFavourite(user.userId, bookId);
+    }
+
+    @Get('books/favourites')
+    @UseGuards(JwtAuthGuard)
+    async getFavourites(@CurrentUser() user: any) {
+        return this.inventoryService.getFavourites(user.userId);
+    }
+
+    @Delete('books/favourite/:id')
+    @UseGuards(JwtAuthGuard)
+    async removeFavourite(@CurrentUser() user: any, @Param('id') bookId: string) {
+        return this.inventoryService.removeFavourite(user.userId, bookId);
+    }
+
+    // =============================================
+    // RECOMMENDATIONS ROUTES - ALIASES
+    // =============================================
+
+    @Get('recommendations/for-you')
+    @UseGuards(JwtAuthGuard)
+    async getForYouRecommendations(
+        @CurrentUser() user: any,
+        @Query('limit') limit?: string,
+    ) {
+        return this.inventoryService.getForYouRecommendations(
+            user.userId,
+            limit ? parseInt(limit) : 10,
+        );
+    }
 }

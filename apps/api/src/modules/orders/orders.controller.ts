@@ -57,7 +57,7 @@ export class OrdersController {
             );
         }
 
-        // Admin/Manager can view all orders
+        // Admin/SUPPLIER can view all orders
         return this.ordersService.getAllOrders(
             page ? parseInt(page) : 1,
             limit ? parseInt(limit) : 20,
@@ -78,7 +78,7 @@ export class OrdersController {
 
     @Put(':id/status')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER, UserRole.CASHIER)
     async updateOrderStatus(
         @Param('id') id: string,
         @Body() updateDto: UpdateOrderStatusDto,
@@ -101,7 +101,7 @@ export class OrdersController {
 
     @Get('returns/list')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async getReturns(@Query('page') page?: string, @Query('limit') limit?: string) {
         return this.ordersService.getReturns(
             page ? parseInt(page) : 1,
@@ -111,7 +111,7 @@ export class OrdersController {
 
     @Put('returns/:id/approve')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async approveReturn(
         @Param('id') id: string,
         @Body() approveDto: ApproveReturnDto,
@@ -125,7 +125,7 @@ export class OrdersController {
 
     @Post('coupons')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async createCoupon(@Body() createCouponDto: CreateCouponDto) {
         return this.ordersService.createCoupon(createCouponDto);
     }
@@ -145,7 +145,7 @@ export class OrdersController {
 
     @Put('coupons/:id')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async updateCoupon(
         @Param('id') id: string,
         @Body() updateCouponDto: UpdateCouponDto,
@@ -155,7 +155,7 @@ export class OrdersController {
 
     @Post('coupons/:id/deactivate')
     @UseGuards(RolesGuard)
-    @Roles(UserRole.ADMIN, UserRole.MANAGER)
+    @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
     async deactivateCoupon(@Param('id') id: string) {
         return this.ordersService.deactivateCoupon(id);
     }

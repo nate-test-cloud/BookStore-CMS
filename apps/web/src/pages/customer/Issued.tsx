@@ -59,8 +59,8 @@ export default function Issued() {
             <button
               onClick={() => setActiveTab("purchases")}
               className={`px-6 py-3 font-semibold transition-colors ${activeTab === "purchases"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-600 hover:text-gray-800"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-gray-800"
                 }`}
             >
               Purchase History
@@ -68,8 +68,8 @@ export default function Issued() {
             <button
               onClick={() => setActiveTab("reading")}
               className={`px-6 py-3 font-semibold transition-colors ${activeTab === "reading"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-600 hover:text-gray-800"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-gray-800"
                 }`}
             >
               My Reading Library
@@ -97,12 +97,12 @@ export default function Issued() {
                         <div className="text-right">
                           <span
                             className={`px-3 py-1 rounded text-sm font-medium ${purchase.status === "DELIVERED"
-                                ? "bg-green-100 text-green-800"
-                                : purchase.status === "PAID"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : purchase.status === "PENDING"
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-gray-100 text-gray-800"
+                              ? "bg-green-100 text-green-800"
+                              : purchase.status === "PAID"
+                                ? "bg-blue-100 text-blue-800"
+                                : purchase.status === "PENDING"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-gray-100 text-gray-800"
                               }`}
                           >
                             {purchase.status}
@@ -139,38 +139,40 @@ export default function Issued() {
                   <p className="text-gray-500 text-lg">No books in your library yet</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {issuedBooks.map((issued: any) => (
                     <div
                       key={issued.id}
-                      className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition"
+                      className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition max-w-[280px] mx-auto"
                     >
-                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 h-32 flex items-center justify-center">
+                      <div className="relative bg-gradient-to-r from-blue-500 to-blue-600 overflow-hidden" style={{ aspectRatio: '2/3' }}>
                         {issued.book.coverImage ? (
                           <img
                             src={issued.book.coverImage}
                             alt={issued.book.title}
-                            className="h-32 w-auto object-cover rounded"
+                            className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-white text-sm font-medium text-center px-2">
-                            {issued.book.title}
-                          </span>
+                          <div className="w-full h-full flex items-center justify-center p-4">
+                            <span className="text-white text-xs font-medium text-center">
+                              {issued.book.title}
+                            </span>
+                          </div>
                         )}
                       </div>
-                      <div className="p-4">
-                        <h3 className="font-semibold text-lg mb-2">
+                      <div className="p-3">
+                        <h3 className="font-semibold text-sm mb-1">
                           {issued.book.title}
                         </h3>
                         {issued.book.authors && issued.book.authors.length > 0 && (
-                          <p className="text-gray-600 text-sm mb-2">
+                          <p className="text-gray-600 text-xs mb-2">
                             By {issued.book.authors.map((a: any) => a.name).join(", ")}
                           </p>
                         )}
-                        <p className="text-gray-600 text-sm mb-3">
+                        <p className="text-gray-600 text-xs mb-2">
                           ISBN: {issued.book.isbn}
                         </p>
-                        <div className="mb-3 text-sm text-gray-600">
+                        <div className="mb-2 text-xs text-gray-600">
                           Reading Progress: Page {issued.currentPage} of{" "}
                           {issued.totalPages}
                         </div>
@@ -184,7 +186,7 @@ export default function Issued() {
                         </div>
                         <a
                           href={`/book-reader/${issued.bookId}`}
-                          className="block text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                          className="block text-center bg-blue-600 text-white py-1.5 text-sm rounded hover:bg-blue-300"
                         >
                           Continue Reading
                         </a>

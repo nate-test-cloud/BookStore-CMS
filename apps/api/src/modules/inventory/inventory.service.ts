@@ -594,4 +594,185 @@ export class InventoryService {
             take: 50,
         });
     }
+
+    // =============================================
+    // WISHLIST/FAVOURITE MANAGEMENT
+    // =============================================
+
+    async addFavourite(userId: string, bookId: string) {
+        // Check if book exists
+        const book = await this.prisma.book.findUnique({
+            where: { id: bookId },
+        });
+
+        if (!book) {
+            throw new NotFoundException('Book not found');
+        }
+
+        // Check if already in wishlist
+        const existingWishlistItem = await this.prisma.wishlistItem.findUnique({
+            where: { userId_bookId: { userId, bookId } },
+        });
+
+        if (existingWishlistItem) {
+            return {
+                message: 'Book already in favourites',
+                wishlistItem: existingWishlistItem,
+            };
+        }
+
+        // Add to wishlist
+        const wishlistItem = await this.prisma.wishlistItem.create({
+            data: {
+                userId,
+                bookId,
+            },
+            include: {
+                book: {
+                    include: {
+                        authors: true,
+                        category: true,
+                        reviews: { select: { rating: true } },
+                    },
+                },
+            },
+        });
+
+        return {
+            message: 'Book added to favourites successfully',
+            wishlistItem,
+        };
+    }
+
+    async removeFavourite(userId: string, bookId: string) {
+        const wishlistItem = await this.prisma.wishlistItem.findUnique({
+            where: { userId_bookId: { userId, bookId } },
+        });
+
+        if (!wishlistItem) {
+            throw new NotFoundException('Wishlist item not found');
+        }
+
+        await this.prisma.wishlistItem.delete({
+            where: { userId_bookId: { userId, bookId } },
+        });
+
+        return { message: 'Book removed from favourites' };
+    }
+
+    async getFavourites(userId: string, page = 1, limit = 20) {
+        const skip = (page - 1) * limit;
+
+        const wishlistItems = await this.prisma.wishlistItem.findMany({
+            where: { userId },
+            skip,
+            take: limit,
+            include: {
+                book: {
+                    include: {
+                        authors: true,
+                        category: true,
+                        reviews: { select: { rating: true } },
+                    },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        const total = await this.prisma.wishlistItem.count({
+            where: { userId },
+        });
+
+        return {
+            data: wishlistItems.map(item => item.book),
+            pagination: {
+                page,
+                limit,
+                total,
+                pages: Math.ceil(total / limit),
+            },
+        };
+    }
+
+    async getForYouRecommendations(userId: string, limit = 10) {
+        // Get user's favourite books to understand preferences
+        const favouriteBooks = await this.prisma.wishlistItem.findMany({
+            where: { userId },
+            include: { book: { select: { categoryId: true, id: true } } },
+        });
+
+        // Get user's purchased books
+        const purchasedBooks = await this.prisma.order.findMany({
+            where: { userId, status: 'PAID' },
+            include: {
+                items: { select: { book: { select: { categoryId: true, id: true } } } },
+            },
+        });
+
+        // Extract category IDs from favourites and purchases
+        const categoryIds = new Set<string>();
+
+        favouriteBooks.forEach(item => {
+            categoryIds.add(item.book.categoryId);
+        });
+
+        purchasedBooks.forEach(order => {
+            order.items.forEach(item => {
+                categoryIds.add(item.book.categoryId);
+            });
+        });
+
+        // If no preferences found, return trending books
+        if (categoryIds.size === 0) {
+            return this.getTrendingBooks(limit);
+        }
+
+        // Get book IDs from favourites and purchases to exclude them
+        const favouriteBookIds = favouriteBooks.map(item => item.bookId);
+        const purchasedBookIds = purchasedBooks.flatMap(order =>
+            order.items.map(item => item.book.id)
+        );
+        const excludeBookIds = [...new Set([...favouriteBookIds, ...purchasedBookIds])];
+
+        // Recommend books from similar categories
+        const recommendations = await this.prisma.book.findMany({
+            where: {
+                deletedAt: null,
+                isActive: true,
+                categoryId: { in: Array.from(categoryIds) },
+                id: { notIn: excludeBookIds },
+            },
+            include: {
+                authors: true,
+                category: true,
+                reviews: { select: { rating: true } },
+            },
+            orderBy: [
+                { rating: 'desc' },
+                { views: 'desc' },
+            ],
+            take: limit,
+        });
+
+        return recommendations;
+    }
+
+    private async getTrendingBooks(limit = 10) {
+        return this.prisma.book.findMany({
+            where: {
+                deletedAt: null,
+                isActive: true,
+            },
+            include: {
+                authors: true,
+                category: true,
+                reviews: { select: { rating: true } },
+            },
+            orderBy: [
+                { rating: 'desc' },
+                { views: 'desc' },
+            ],
+            take: limit,
+        });
+    }
 }

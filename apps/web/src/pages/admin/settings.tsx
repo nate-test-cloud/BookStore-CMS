@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +14,15 @@ import TopSearchBar from "@/components/TopSearchBar";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 
 export default function AdminSettings() {
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const sidebarCollapsed = useSidebarCollapsed();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate("/unauthorized", { replace: true });
+    }
+  }, [isAdmin, navigate]);
   const { theme, setTheme } = useTheme();
   const [storeName, setStoreName] = useState("BookCMS");
   const [email, setEmail] = useState("admin@bookcms.com");

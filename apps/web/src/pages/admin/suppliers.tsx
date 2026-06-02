@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useListSuppliers } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,10 +8,20 @@ import { Building2, Mail, Phone, User } from "lucide-react";
 import AdminSidebar from "@/components/AdminSidebar";
 import TopSearchBar from "@/components/TopSearchBar";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminSuppliers() {
-  const { data: suppliers = [], isLoading } = useListSuppliers();
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
+  const { data, isLoading } = useListSuppliers();
+  const suppliers = data?.data || [];
   const sidebarCollapsed = useSidebarCollapsed();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate("/unauthorized", { replace: true });
+    }
+  }, [isAdmin, navigate]);
 
   return (
     <div className="min-h-screen bg-background">

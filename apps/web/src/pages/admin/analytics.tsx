@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   useGetSalesOverTime,
   useGetRevenueByCategory,
@@ -14,15 +16,24 @@ import {
 import AdminSidebar from "@/components/AdminSidebar";
 import TopSearchBar from "@/components/TopSearchBar";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
+import { useAuth } from "@/hooks/useAuth";
 
 const COLORS = ["#6366f1", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#3b82f6", "#ef4444", "#f97316", "#14b8a6", "#a855f7"];
 
 export default function AdminAnalytics() {
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const { data: stats } = useGetDashboardStats();
   const { data: salesData } = useGetSalesOverTime();
   const { data: categoryData } = useGetRevenueByCategory();
   const sidebarCollapsed = useSidebarCollapsed();
   const { data: topBooks } = useGetTopBooks();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate("/unauthorized", { replace: true });
+    }
+  }, [isAdmin, navigate]);
   const { data: customerGrowth } = useGetCustomerGrowth();
 
   const sales = salesData ?? [];

@@ -148,6 +148,21 @@ async function main() {
         publishers.push(created);
     }
 
+    // Create suppliers
+    const suppliersToCreate = [
+        { name: 'Classic Books Distributors', contactPerson: 'John Smith', email: 'john@classicbooks.com', phone: '555-0101', address: '123 Publisher Lane, New York, NY 10001', paymentTerms: 'Net 30 days' },
+        { name: 'Modern Publishing Supply', contactPerson: 'Sarah Johnson', email: 'sarah@modernpub.com', phone: '555-0102', address: '456 Distribution Ave, Chicago, IL 60601', paymentTerms: 'Net 45 days' },
+        { name: 'Global Book Imports', contactPerson: 'Michael Chen', email: 'michael@globalbooks.com', phone: '555-0103', address: '789 Import St, Los Angeles, CA 90001', paymentTerms: 'Net 60 days' },
+        { name: 'Independent Authors Hub', contactPerson: 'Emma Williams', email: 'emma@indieauth.com', phone: '555-0104', address: '321 Author Plaza, Austin, TX 78701', paymentTerms: 'Net 15 days' },
+        { name: 'Academic Press Solutions', contactPerson: 'Dr. Robert Davis', email: 'robert@acadermic.com', phone: '555-0105', address: '654 University Blvd, Boston, MA 02101', paymentTerms: 'Net 30 days' },
+    ];
+
+    for (const supplierData of suppliersToCreate) {
+        await prisma.supplier.create({
+            data: supplierData,
+        });
+    }
+
     // Create 30+ books with Amazon cover images
     const bookCoverImages = {
         "1984": "https://m.media-amazon.com/images/I/71kxa1-0mfL._SL1500_.jpg",

@@ -44,7 +44,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   // Global prefix
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api');
 
   // Prisma shutdown hooks
   const prismaService = app.get(PrismaService);

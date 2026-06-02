@@ -45,18 +45,15 @@ export interface BookListResponse {
 
 export interface BookInput {
   title: string;
-  author: string;
-  category: string;
-  isbn?: string;
-  price: number;
-  costPrice?: number;
-  stock: number;
-  status?: string;
-  coverImage?: string;
+  categoryId: string;
+  authorIds: string[];
+  isbn: string;
+  basePrice: number;
+  discountPercent?: number;
+  stock?: number;
   description?: string;
-  publisher?: string;
-  publishedYear?: number;
-  supplierId?: number;
+  publisherId?: string;
+  subtitle?: string;
 }
 
 export interface BookUpdate {

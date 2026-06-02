@@ -3,6 +3,7 @@ import {
     Post,
     Get,
     Put,
+    Patch,
     Delete,
     Body,
     Param,
@@ -10,12 +11,19 @@ import {
     UseGuards,
     HttpCode,
     HttpStatus,
+    NotFoundException,
 } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { OrdersService } from '../orders/orders.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { PrismaService } from '../../database/prisma.service';
+import { IdMapper } from '../../common/id-mapper.util';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { UserRole } from '@prisma/client';
 import {
     LoginDto,
     SignupDto,
@@ -39,7 +47,21 @@ export class ApiCompatibilityController {
         private authService: AuthService,
         private inventoryService: InventoryService,
         private ordersService: OrdersService,
+        private notificationsService: NotificationsService,
+        private prisma: PrismaService,
     ) { }
+
+    /**
+     * Helper method to find book by numeric ID hash
+     */
+    private async findBookBynumericId(numericId: number) {
+        const allBooks = await this.prisma.book.findMany();
+        const book = allBooks.find(b => IdMapper.cuidToNumericId(b.id) === numericId);
+        if (!book) {
+            throw new NotFoundException(`Book with ID ${numericId} not found`);
+        }
+        return book;
+    }
 
     // =============================================
     // AUTH ROUTES - ALIASES
@@ -124,9 +146,29 @@ export class ApiCompatibilityController {
         return this.inventoryService.updateBook(id, updateBookDto);
     }
 
+    @Patch('books/:id')
+    @UseGuards(JwtAuthGuard)
+    async patchBook(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
+        // Handle numeric IDs from generated API client
+        const numericId = parseInt(id);
+        if (!isNaN(numericId)) {
+            const book = await this.findBookBynumericId(numericId);
+            return this.inventoryService.updateBook(book.id, updateBookDto);
+        }
+        // Fallback to string ID (CUID)
+        return this.inventoryService.updateBook(id, updateBookDto);
+    }
+
     @Delete('books/:id')
     @UseGuards(JwtAuthGuard)
     async deleteBook(@Param('id') id: string) {
+        // Handle numeric IDs from generated API client
+        const numericId = parseInt(id);
+        if (!isNaN(numericId)) {
+            const book = await this.findBookBynumericId(numericId);
+            return this.inventoryService.deleteBook(book.id);
+        }
+        // Fallback to string ID (CUID)
         return this.inventoryService.deleteBook(id);
     }
 
@@ -183,13 +225,13 @@ export class ApiCompatibilityController {
     @Get('notifications')
     @UseGuards(JwtAuthGuard)
     async getNotifications(@CurrentUser() user: any) {
-        return { notifications: [] }; // Placeholder for notifications
+        return this.notificationsService.getUserNotifications(user.userId);
     }
 
     @Put('notifications/:id/read')
     @UseGuards(JwtAuthGuard)
     async markNotificationRead(@Param('id') id: string) {
-        return { message: 'Notification marked as read' }; // Placeholder
+        return this.notificationsService.markAsRead(id);
     }
 
     // =============================================
@@ -198,14 +240,18 @@ export class ApiCompatibilityController {
 
     @Get('admin/notifications')
     @UseGuards(JwtAuthGuard)
-    async getAdminNotifications(@CurrentUser() user: any) {
-        return { notifications: [] }; // Placeholder for admin notifications
+    @UseGuards(RolesGuard)
+    @Roles(UserRole.ADMIN)
+    async getAdminNotifications() {
+        return this.notificationsService.getAdminNotifications();
     }
 
     @Put('admin/notifications/:id/read')
     @UseGuards(JwtAuthGuard)
+    @UseGuards(RolesGuard)
+    @Roles(UserRole.ADMIN)
     async markAdminNotificationRead(@Param('id') id: string) {
-        return { message: 'Admin notification marked as read' }; // Placeholder
+        return this.notificationsService.markAsRead(id);
     }
 
     // =============================================

@@ -260,6 +260,18 @@ docker-compose ps
 
 ```
 
+### Adding New Books (admin/books)
+
+Fill the Add Book form with:
+
+Title: Any text
+Author(s): Copy paste a valid author ID (or multiple comma-separated IDs)
+Category: Copy paste a valid category ID
+ISBN: A valid ISBN (e.g., 978-0-13-110362-7)
+Base Price: Any number > 0
+Stock: Any number ≥ 0
+Other optional fields as needed
+
 ---
 
 ## 🛠️ Troubleshooting

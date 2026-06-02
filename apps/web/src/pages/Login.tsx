@@ -45,12 +45,15 @@ export default function Login() {
         const data = await apiPost('/auth/login', { email, password });
         console.log('Login successful', data);
 
-        // Store tokens in localStorage
+        // Store tokens and user info in localStorage
         if (data.accessToken) {
           localStorage.setItem('accessToken', data.accessToken);
         }
         if (data.refreshToken) {
           localStorage.setItem('refreshToken', data.refreshToken);
+        }
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
         }
 
         navigate("/dashboard");

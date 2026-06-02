@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useListOrders } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,10 +8,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AdminSidebar from "@/components/AdminSidebar";
 import TopSearchBar from "@/components/TopSearchBar";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminOrders() {
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const { data: response, isLoading } = useListOrders();
   const sidebarCollapsed = useSidebarCollapsed();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate("/unauthorized", { replace: true });
+    }
+  }, [isAdmin, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,8 +66,8 @@ export default function AdminOrders() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      response.data.map((order) => (
-                        <TableRow key={order.id}>
+                      response.data.map((order, index) => (
+                        <TableRow key={`${order.id}-${index}-${order.createdAt}`}>
                           <TableCell className="font-medium">#{order.id}</TableCell>
                           <TableCell>{order.customerName || "Walk-in"}</TableCell>
                           <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>

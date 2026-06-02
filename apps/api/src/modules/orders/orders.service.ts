@@ -258,14 +258,47 @@ export class OrdersService {
             this.prisma.order.count({ where }),
         ]);
 
+        // Transform orders to match API schema
+        // Helper function to generate numeric ID from cuid with better hashing
+        const generateNumericId = (cuid: string): number => {
+            let hash = 0;
+            for (let i = 0; i < cuid.length; i++) {
+                const char = cuid.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash) % 10000000; // Ensure positive number
+        };
+
+        const transformedOrders = orders.map((order) => ({
+            id: generateNumericId(order.id), // Convert cuid to numeric ID
+            customerId: generateNumericId(order.userId),
+            customerName: order.user?.fullName || 'Unknown',
+            status: order.status,
+            total: order.totalAmount,
+            subtotal: order.subtotal,
+            discount: order.discountAmount,
+            tax: order.taxAmount,
+            paymentMethod: order.paymentStatus,
+            notes: order.notes,
+            items: order.items.map((item) => ({
+                id: generateNumericId(item.id),
+                orderId: generateNumericId(order.id),
+                bookId: generateNumericId(item.bookId),
+                bookTitle: item.book?.title || 'Unknown',
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                total: item.total,
+            })),
+            createdAt: order.createdAt?.toISOString() || new Date().toISOString(),
+            updatedAt: order.updatedAt?.toISOString() || null,
+        }));
+
         return {
-            orders,
-            pagination: {
-                total,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit),
-            },
+            data: transformedOrders,
+            total,
+            page,
+            limit,
         };
     }
 

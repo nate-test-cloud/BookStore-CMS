@@ -8,6 +8,10 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { ApiCompatibilityModule } from './modules/api-compatibility/api-compatibility.module';
 import { CartModule } from './modules/cart/cart.module';
 import { BooksReadingModule } from './modules/books-reading/books-reading.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { SuppliersModule } from './modules/suppliers/suppliers.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { CustomersModule } from './modules/customers/customers.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -29,13 +33,11 @@ import { AppService } from './app.service';
     OrdersModule,
     CartModule,
     BooksReadingModule,
+    NotificationsModule,
+    SuppliersModule,
+    AnalyticsModule,
+    CustomersModule,
     ApiCompatibilityModule,
-
-    // TODO: Add more modules
-    // CustomerModule,
-    // AnalyticsModule,
-    // SupplierModule,
-    // NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

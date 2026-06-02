@@ -32,6 +32,8 @@ const Index = () => {
           const booksResponse = await apiGet('/books');
           if (Array.isArray(booksResponse)) {
             setForYouBooks(booksResponse);
+          } else if (booksResponse.data) {
+            setForYouBooks(booksResponse.data);
           } else if (booksResponse.books) {
             setForYouBooks(booksResponse.books);
           }
@@ -42,6 +44,8 @@ const Index = () => {
           const booksResponse = await apiGet('/books?limit=20');
           if (Array.isArray(booksResponse)) {
             setTrendingBooks(booksResponse);
+          } else if (booksResponse.data) {
+            setTrendingBooks(booksResponse.data);
           } else if (booksResponse.books) {
             setTrendingBooks(booksResponse.books);
           }

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGetDashboardStats, useGetSalesOverTime, useGetRevenueByCategory, useGetTopBooks, useGetLowStockBooks } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { DollarSign, ShoppingBag, BookOpen, AlertTriangle } from "lucide-react";
@@ -8,13 +10,22 @@ import { Badge } from "@/components/ui/badge";
 import AdminSidebar from "@/components/AdminSidebar";
 import TopSearchBar from "@/components/TopSearchBar";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const { data: stats, isLoading: statsLoading } = useGetDashboardStats();
   const { data: salesData } = useGetSalesOverTime();
   const { data: categoryData } = useGetRevenueByCategory();
   const { data: lowStockBooks } = useGetLowStockBooks();
   const sidebarCollapsed = useSidebarCollapsed();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate("/unauthorized", { replace: true });
+    }
+  }, [isAdmin, navigate]);
 
   return (
     <div className="min-h-screen bg-background">

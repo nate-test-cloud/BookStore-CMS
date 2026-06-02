@@ -9,13 +9,14 @@ import SignUp from "./pages/SignUp.tsx";
 import ForgotPass from "./pages/ForgotPass.tsx";
 import Index from "./pages/customer/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Unauthorized from "./pages/Unauthorized.tsx";
 import OnlineRead from "./pages/customer/OnlineRead.tsx";
 import BookReader from "./pages/customer/BookReader.tsx";
 import Purchase from "./pages/customer/Purchase.tsx";
 import Issued from "./pages/customer/Issued.tsx";
 import Settings from "./pages/customer/Settings.tsx";
 import ReturnDeadline from "./pages/customer/ReturnDeadline.tsx";
-import Notifications from "./pages/customer/Notifications.tsx";
+import Notifications from "./pages/Notifications.tsx";
 import Search from "./pages/Search.tsx";
 import BookDetails from "./pages/customer/BookDetails.tsx";
 import AdminDashboard from "./pages/admin/dashboard.tsx";
@@ -27,7 +28,6 @@ import AdminPOS from "./pages/admin/pos.tsx";
 import AdminOrders from "./pages/admin/orders.tsx";
 import AdminInventory from "./pages/admin/inventory.tsx";
 import AdminSettings from "./pages/admin/settings.tsx";
-import AdminNotifications from "./pages/admin/notifications.tsx";
 
 //Start here
 const queryClient = new QueryClient();
@@ -55,6 +55,7 @@ const App = () => (
           <Route path="/issued" element={<Issued />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/books" element={<AdminBooks />} />
           <Route path="/admin/inventory" element={<AdminInventory />} />
@@ -64,7 +65,6 @@ const App = () => (
           <Route path="/admin/suppliers" element={<AdminSuppliers />} />
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
-          <Route path="/admin/notifications" element={<AdminNotifications />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

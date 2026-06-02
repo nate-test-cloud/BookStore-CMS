@@ -5,6 +5,7 @@ import {
     ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { IdMapper } from '../../common/id-mapper.util';
 import {
     CreateBookDto,
     UpdateBookDto,
@@ -165,13 +166,27 @@ export class InventoryService {
         ]);
 
         return {
-            books,
-            pagination: {
-                total,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit),
-            },
+            data: books.map(book => ({
+                id: IdMapper.cuidToNumericId(book.id),
+                title: book.title,
+                author: book.authors?.[0]?.name || 'Unknown',
+                category: book.category?.name || 'Unknown',
+                isbn: book.isbn,
+                price: book.currentPrice || book.basePrice,
+                costPrice: book.basePrice,
+                stock: book.stock,
+                status: book.stock > 10 ? 'In Stock' : book.stock > 0 ? 'Low Stock' : 'Out of Stock',
+                coverImage: book.coverImage,
+                description: book.description,
+                publisher: book.publisher?.name || null,
+                publishedYear: book.publicationDate ? new Date(book.publicationDate).getFullYear() : null,
+                supplierId: null,
+                createdAt: book.createdAt?.toISOString() || new Date().toISOString(),
+                updatedAt: book.updatedAt?.toISOString() || null,
+            })),
+            total,
+            page,
+            limit,
         };
     }
 

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useListCustomers } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,10 +9,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AdminSidebar from "@/components/AdminSidebar";
 import TopSearchBar from "@/components/TopSearchBar";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminCustomers() {
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const { data: response, isLoading } = useListCustomers();
   const sidebarCollapsed = useSidebarCollapsed();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate("/unauthorized", { replace: true });
+    }
+  }, [isAdmin, navigate]);
 
   return (
     <div className="min-h-screen bg-background">

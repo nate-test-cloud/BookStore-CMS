@@ -41,6 +41,10 @@ export default function Settings() {
         setProfile(data || {});
       } catch (error) {
         console.error("Error fetching profile:", error);
+        // Clear localStorage to prevent infinite redirect loop
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         navigate("/login");
       } finally {
         setLoading(false);

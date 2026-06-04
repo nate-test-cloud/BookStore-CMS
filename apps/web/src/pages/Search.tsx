@@ -15,7 +15,7 @@ export default function Search() {
 
   useEffect(() => {
     if (!query.trim()) {
-      navigate('/index');
+      navigate('/dashboard');
       return;
     }
 

@@ -13,12 +13,13 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell, Legend, AreaChart, Area,
 } from "recharts";
+import { DollarSign, Users, BookOpen, TrendingUp } from "lucide-react";
 import AdminSidebar from "@/components/AdminSidebar";
 import TopSearchBar from "@/components/TopSearchBar";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { useAuth } from "@/hooks/useAuth";
 
-const COLORS = ["#6366f1", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#3b82f6", "#ef4444", "#f97316", "#14b8a6", "#a855f7"];
+const COLORS = ["hsl(var(--primary))", "hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
 export default function AdminAnalytics() {
   const navigate = useNavigate();
@@ -55,20 +56,21 @@ export default function AdminAnalytics() {
 
             <div className="grid gap-4 md:grid-cols-3">
               {[
-                { label: "Total Revenue", value: stats ? `$${(stats.totalRevenue ?? 0).toFixed(2)}` : null, desc: "All-time revenue" },
-                { label: "Total Customers", value: stats?.totalCustomers?.toString() ?? null, desc: "Registered customers" },
-                { label: "Books in Catalog", value: stats?.totalBooks?.toString() ?? null, desc: "Unique titles" },
-              ].map(({ label, value, desc }) => (
+                { label: "Total Revenue", value: stats ? `$${(stats.totalRevenue ?? 0).toFixed(2)}` : null, desc: "All-time revenue", icon: DollarSign },
+                { label: "Total Customers", value: stats?.totalCustomers?.toString() ?? null, desc: "Registered customers", icon: Users },
+                { label: "Books in Catalog", value: stats?.totalBooks?.toString() ?? null, desc: "Unique titles", icon: BookOpen },
+              ].map(({ label, value, desc, icon: Icon }) => (
                 <Card key={label}>
-                  <CardHeader className="pb-2">
-                    <CardDescription>{label}</CardDescription>
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium">{label}</CardTitle>
+                    <Icon className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     {value == null ? (
                       <Skeleton className="h-8 w-24" />
                     ) : (
                       <>
-                        <div className="text-3xl font-bold">{value}</div>
+                        <div className="text-2xl font-bold">{value}</div>
                         <p className="text-xs text-muted-foreground mt-1">{desc}</p>
                       </>
                     )}
@@ -83,23 +85,27 @@ export default function AdminAnalytics() {
                   <CardTitle>Revenue Over Time</CardTitle>
                   <CardDescription>Daily revenue for the past 30 days</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="h-[300px]">
                   {sales.length === 0 ? (
                     <Skeleton className="h-[240px] w-full" />
                   ) : (
-                    <ResponsiveContainer width="100%" height={240}>
-                      <AreaChart data={sales}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={sales} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                         <defs>
                           <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={(v: string) => v.slice(5)} />
-                        <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `$${v}`} />
-                        <Tooltip formatter={(v: number) => [`$${v.toFixed(2)}`, "Revenue"]} />
-                        <Area type="monotone" dataKey="revenue" stroke="#6366f1" fill="url(#revenueGrad)" strokeWidth={2} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                        <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: string) => v.slice(5)} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: number) => `$${v}`} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: "hsl(var(--card))", borderColor: "hsl(var(--border))", borderRadius: "8px" }}
+                          itemStyle={{ color: "hsl(var(--foreground))" }}
+                          formatter={(v: number) => [`$${v.toFixed(2)}`, "Revenue"]}
+                        />
+                        <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#revenueGrad)" strokeWidth={2} />
                       </AreaChart>
                     </ResponsiveContainer>
                   )}
@@ -111,17 +117,20 @@ export default function AdminAnalytics() {
                   <CardTitle>Customer Growth</CardTitle>
                   <CardDescription>New customers per month</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="h-[300px]">
                   {growth.length === 0 ? (
                     <Skeleton className="h-[240px] w-full" />
                   ) : (
-                    <ResponsiveContainer width="100%" height={240}>
-                      <LineChart data={growth}>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                        <YAxis tick={{ fontSize: 11 }} />
-                        <Tooltip />
-                        <Line type="monotone" dataKey="newCustomers" stroke="#10b981" strokeWidth={2} dot={false} name="New Customers" />
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={growth} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                        <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: "hsl(var(--card))", borderColor: "hsl(var(--border))", borderRadius: "8px" }}
+                          itemStyle={{ color: "hsl(var(--foreground))" }}
+                        />
+                        <Line type="monotone" dataKey="newCustomers" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} name="New Customers" />
                       </LineChart>
                     </ResponsiveContainer>
                   )}
@@ -133,18 +142,22 @@ export default function AdminAnalytics() {
                   <CardTitle>Revenue by Category</CardTitle>
                   <CardDescription>Which genres generate the most revenue</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="h-[300px]">
                   {categories.length === 0 ? (
                     <Skeleton className="h-[240px] w-full" />
                   ) : (
-                    <ResponsiveContainer width="100%" height={240}>
-                      <PieChart>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                         <Pie data={categories} dataKey="revenue" nameKey="category" cx="50%" cy="50%" outerRadius={90} label={({ category }: { category: string }) => category}>
                           {categories.map((_: unknown, idx: number) => (
                             <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip formatter={(v: number) => [`$${v.toFixed(2)}`, "Revenue"]} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: "hsl(var(--card))", borderColor: "hsl(var(--border))", borderRadius: "8px" }}
+                          itemStyle={{ color: "hsl(var(--foreground))" }}
+                          formatter={(v: number) => [`$${v.toFixed(2)}`, "Revenue"]}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   )}
@@ -156,17 +169,20 @@ export default function AdminAnalytics() {
                   <CardTitle>Top Selling Books</CardTitle>
                   <CardDescription>Best performers by units sold</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="h-[300px]">
                   {books.length === 0 ? (
                     <Skeleton className="h-[240px] w-full" />
                   ) : (
-                    <ResponsiveContainer width="100%" height={240}>
-                      <BarChart data={books} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis type="number" tick={{ fontSize: 11 }} />
-                        <YAxis dataKey="title" type="category" tick={{ fontSize: 10 }} width={120} />
-                        <Tooltip />
-                        <Bar dataKey="unitsSold" fill="#6366f1" name="Units Sold" radius={[0, 4, 4, 0]} />
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={books} layout="vertical" margin={{ top: 5, right: 30, left: 120, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="hsl(var(--border))" />
+                        <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                        <YAxis dataKey="title" type="category" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: "hsl(var(--card))", borderColor: "hsl(var(--border))", borderRadius: "8px" }}
+                          itemStyle={{ color: "hsl(var(--foreground))" }}
+                        />
+                        <Bar dataKey="unitsSold" fill="hsl(var(--primary))" name="Units Sold" radius={[0, 4, 4, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   )}

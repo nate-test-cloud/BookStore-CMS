@@ -7,7 +7,7 @@ import Landing from "./pages/Landing.tsx";
 import Login from "./pages/Login.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import ForgotPass from "./pages/ForgotPass.tsx";
-import Index from "./pages/customer/Index.tsx";
+import Index from "./pages/customer/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Unauthorized from "./pages/Unauthorized.tsx";
 import OnlineRead from "./pages/customer/OnlineRead.tsx";

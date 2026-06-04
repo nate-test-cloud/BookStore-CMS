@@ -88,7 +88,7 @@ export default function BookReader() {
                         <div className="flex items-start justify-between mb-4">
                             <button
                                 onClick={() => navigate("/online-read")}
-                                className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                                className="flex items-center gap-2 text-primary hover:text-primary/50"
                             >
                                 <Home className="h-5 w-5" />
                                 Back to Library
@@ -116,7 +116,7 @@ export default function BookReader() {
                         <button
                             onClick={handlePrevPage}
                             disabled={currentPage === 1}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/50 disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
                             <ChevronLeft className="h-5 w-5" />
                             Previous
@@ -138,7 +138,7 @@ export default function BookReader() {
                         <button
                             onClick={handleNextPage}
                             disabled={currentPage === totalPages}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/50 disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
                             Next
                             <ChevronRight className="h-5 w-5" />

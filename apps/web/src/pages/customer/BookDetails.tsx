@@ -66,11 +66,8 @@ export default function BookDetails() {
     );
   }
 
-  // Calculate average rating from reviews
-  const avgRating = book.reviews && book.reviews.length > 0
-    ? Math.round((book.reviews.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / book.reviews.length) * 10) / 10
-    : 0;
-  const reviewCount = book.reviews?.length || 0;
+  // Use rating from backend (already calculated)
+  const avgRating = book.rating || 0;
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -81,7 +78,7 @@ export default function BookDetails() {
 
         <main className="p-6">
           <button
-            onClick={() => navigate("/index")}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 mb-6 text-muted-foreground hover:text-foreground transition"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -95,13 +92,16 @@ export default function BookDetails() {
                 src={book.coverImage || '/placeholder-book.png'}
                 alt={book.title}
                 className="w-full h-auto rounded-lg shadow-lg"
+                onError={(e) => {
+                  e.currentTarget.src = '/placeholder-book.png';
+                }}
               />
             </div>
 
             {/* Book Details */}
             <div className="md:col-span-2">
               <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
-              <p className="text-lg text-muted-foreground mb-4">by {book.authors?.[0]?.name || 'Unknown Author'}</p>
+              <p className="text-lg text-muted-foreground mb-4">by {book.author || 'Unknown Author'}</p>
 
               {/* Rating */}
               <div className="flex items-center gap-2 mb-6">
@@ -115,7 +115,7 @@ export default function BookDetails() {
                   />
                 ))}
                 <span className="text-sm text-muted-foreground ml-2">
-                  {avgRating.toFixed(1)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})
+                  {avgRating.toFixed(1)}
                 </span>
               </div>
 
@@ -123,7 +123,7 @@ export default function BookDetails() {
               <div className="flex gap-4 mb-6">
                 <div>
                   <p className="text-sm text-muted-foreground">Genre</p>
-                  <p className="font-semibold">{book.category?.name || 'Fiction'}</p>
+                  <p className="font-semibold">{book.category || 'Fiction'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Copies</p>
@@ -132,9 +132,9 @@ export default function BookDetails() {
               </div>
 
               {/* Availability */}
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="mb-6 p-4 rounded-lg border border-primaryrimar">
                 <p className="text-sm text-muted-foreground">Available for Purchase</p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-primary">
                   {book.stock || 0} copies available
                 </p>
               </div>
@@ -151,7 +151,7 @@ export default function BookDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Price per copy</p>
                     <p className="text-4xl font-bold text-primary">
-                      ₹{book.currentPrice || book.basePrice}
+                      ₹{book.price || 0}
                     </p>
                   </div>
 
@@ -197,7 +197,7 @@ export default function BookDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Total</p>
                     <p className="text-2xl font-bold">
-                      ₹{(book.currentPrice || book.basePrice) * quantity}
+                      ₹{(book.price || 0) * quantity}
                     </p>
                   </div>
                 </div>
@@ -205,7 +205,7 @@ export default function BookDetails() {
                 <button
                   onClick={handleAddToCart}
                   disabled={!book.stock || book.stock === 0}
-                  className="mt-6 w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="mt-6 w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-primary/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className="h-5 w-5" />
                   Add to Cart

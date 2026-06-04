@@ -23,7 +23,7 @@ export default function Unauthorized() {
                 <div className="space-y-3">
                     <button
                         onClick={() => navigate("/")}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/50 transition"
                     >
                         <Home size={20} />
                         Go to Home

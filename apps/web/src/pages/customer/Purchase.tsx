@@ -33,6 +33,11 @@ export default function Purchase() {
         await fetchCart();
       } catch (error) {
         console.error("Auth check failed:", error);
+        // Clear localStorage to prevent infinite redirect loop
+        // when token is expired/invalid
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         navigate("/login");
       } finally {
         setChecking(false);
@@ -134,7 +139,7 @@ export default function Purchase() {
                 </div>
                 <button
                   onClick={handleCheckout}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
+                  className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/50"
                 >
                   Proceed to Checkout
                 </button>

@@ -40,7 +40,7 @@ export default function AdminBooks() {
     }
   }, [isAdmin, navigate]);
 
-  const [editingBooks, setEditingBooks] = useState<Record<number, EditingBook>>({});
+  const [editingBooks, setEditingBooks] = useState<Record<string, EditingBook>>({});
   const [showAddModal, setShowAddModal] = useState(false);
   const [newBook, setNewBook] = useState<NewBookForm>({
     title: '',
@@ -65,11 +65,11 @@ export default function AdminBooks() {
   const startEditing = (book: Book) => {
     setEditingBooks(prev => ({
       ...prev,
-      [book.id]: { ...book, isEditing: true }
+      [String(book.id)]: { ...book, isEditing: true }
     }));
   };
 
-  const cancelEditing = (bookId: number) => {
+  const cancelEditing = (bookId: string) => {
     setEditingBooks(prev => {
       const newState = { ...prev };
       delete newState[bookId];
@@ -77,7 +77,7 @@ export default function AdminBooks() {
     });
   };
 
-  const updateField = (bookId: number, field: string, value: any) => {
+  const updateField = (bookId: string, field: string, value: any) => {
     setEditingBooks(prev => ({
       ...prev,
       [bookId]: { ...prev[bookId], [field]: value }
@@ -86,7 +86,7 @@ export default function AdminBooks() {
 
   const handleSave = async (book: EditingBook) => {
     try {
-      const originalBook = books.find(b => b.id === book.id);
+      const originalBook = books.find(b => String(b.id) === String(book.id));
       if (!originalBook) return;
 
       const updates: any = {};
@@ -98,22 +98,22 @@ export default function AdminBooks() {
       if (book.stock !== originalBook.stock) updates.stock = book.stock;
 
       if (Object.keys(updates).length === 0) {
-        cancelEditing(book.id);
+        cancelEditing(String(book.id));
         return;
       }
 
-      await updateMutation.mutateAsync({ id: book.id, data: updates });
-      cancelEditing(book.id);
+      await updateMutation.mutateAsync({ id: String(book.id) as any, data: updates });
+      cancelEditing(String(book.id));
       refetch();
     } catch (error) {
       console.error('Error saving book:', error);
     }
   };
 
-  const handleDelete = async (bookId: number) => {
+  const handleDelete = async (bookId: string) => {
     if (window.confirm('Are you sure you want to delete this book?')) {
       try {
-        await deleteMutation.mutateAsync(bookId);
+        await deleteMutation.mutateAsync({ id: bookId } as any);
         refetch();
       } catch (error) {
         console.error('Error deleting book:', error);
@@ -121,8 +121,8 @@ export default function AdminBooks() {
     }
   };
 
-  const toggleStatus = (bookId: number) => {
-    const book = editingBooks[bookId] || books.find(b => b.id === bookId);
+  const toggleStatus = (bookId: string) => {
+    const book = editingBooks[bookId] || books.find(b => String(b.id) === bookId);
     if (!book) return;
 
     const statusOrder = ['In Stock', 'Low Stock', 'Out of Stock'];
@@ -133,7 +133,7 @@ export default function AdminBooks() {
   };
 
   const getDisplayedBooks = () => {
-    return books.map(book => editingBooks[book.id] || book);
+    return books.map(book => editingBooks[String(book.id)] || book);
   };
 
   const handleCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -262,13 +262,13 @@ export default function AdminBooks() {
                                   <input
                                     type="text"
                                     value={book.title}
-                                    onChange={(e) => updateField(book.id, 'title', e.target.value)}
+                                    onChange={(e) => updateField(String(book.id), 'title', e.target.value)}
                                     className="w-full px-2 py-1 border rounded bg-white text-sm"
                                   />
                                 ) : (
                                   <div
                                     onClick={() => startEditing(book)}
-                                    className="cursor-pointer hover:text-blue-600 transition"
+                                    className="cursor-pointer hover:text-primary transition"
                                   >
                                     {book.title}
                                   </div>
@@ -281,13 +281,13 @@ export default function AdminBooks() {
                                   <input
                                     type="text"
                                     value={book.author}
-                                    onChange={(e) => updateField(book.id, 'author', e.target.value)}
+                                    onChange={(e) => updateField(String(book.id), 'author', e.target.value)}
                                     className="w-full px-2 py-1 border rounded bg-white text-sm"
                                   />
                                 ) : (
                                   <div
                                     onClick={() => startEditing(book)}
-                                    className="cursor-pointer hover:text-blue-600 transition"
+                                    className="cursor-pointer hover:text-primary transition"
                                   >
                                     {book.author}
                                   </div>
@@ -300,13 +300,13 @@ export default function AdminBooks() {
                                   <input
                                     type="text"
                                     value={book.category}
-                                    onChange={(e) => updateField(book.id, 'category', e.target.value)}
+                                    onChange={(e) => updateField(String(book.id), 'category', e.target.value)}
                                     className="w-full px-2 py-1 border rounded bg-white text-sm"
                                   />
                                 ) : (
                                   <div
                                     onClick={() => startEditing(book)}
-                                    className="cursor-pointer hover:text-blue-600 transition"
+                                    className="cursor-pointer hover:text-primary transition"
                                   >
                                     {book.category}
                                   </div>
@@ -318,7 +318,7 @@ export default function AdminBooks() {
                                 {isEditing ? (
                                   <div className="flex items-center gap-1">
                                     <button
-                                      onClick={() => updateField(book.id, 'price', Math.max(0, book.price - 1))}
+                                      onClick={() => updateField(String(book.id), 'price', Math.max(0, book.price - 1))}
                                       className="p-1 hover:bg-gray-200 rounded"
                                       title="Decrease price"
                                     >
@@ -327,11 +327,11 @@ export default function AdminBooks() {
                                     <input
                                       type="number"
                                       value={book.price}
-                                      onChange={(e) => updateField(book.id, 'price', parseFloat(e.target.value) || 0)}
+                                      onChange={(e) => updateField(String(book.id), 'price', parseFloat(e.target.value) || 0)}
                                       className="w-20 px-2 py-1 border rounded bg-white text-sm text-center"
                                     />
                                     <button
-                                      onClick={() => updateField(book.id, 'price', book.price + 1)}
+                                      onClick={() => updateField(String(book.id), 'price', book.price + 1)}
                                       className="p-1 hover:bg-gray-200 rounded"
                                       title="Increase price"
                                     >
@@ -341,7 +341,7 @@ export default function AdminBooks() {
                                 ) : (
                                   <div
                                     onClick={() => startEditing(book)}
-                                    className="cursor-pointer hover:text-blue-600 transition group relative"
+                                    className="cursor-pointer hover:text-primary/50 transition group relative"
                                   >
                                     ${book.price.toFixed(2)}
                                     <div className="hidden group-hover:flex absolute left-0 top-6 gap-1 bg-white border rounded shadow-sm p-1 z-10">
@@ -350,7 +350,7 @@ export default function AdminBooks() {
                                           e.stopPropagation();
                                           startEditing(book);
                                           setTimeout(() => {
-                                            updateField(book.id, 'price', Math.max(0, book.price - 1));
+                                            updateField(String(book.id), 'price', Math.max(0, book.price - 1));
                                           }, 0);
                                         }}
                                         className="p-1 hover:bg-gray-200 rounded"
@@ -363,7 +363,7 @@ export default function AdminBooks() {
                                           e.stopPropagation();
                                           startEditing(book);
                                           setTimeout(() => {
-                                            updateField(book.id, 'price', book.price + 1);
+                                            updateField(String(book.id), 'price', book.price + 1);
                                           }, 0);
                                         }}
                                         className="p-1 hover:bg-gray-200 rounded"
@@ -381,7 +381,7 @@ export default function AdminBooks() {
                                 {isEditing ? (
                                   <div className="flex items-center gap-1">
                                     <button
-                                      onClick={() => updateField(book.id, 'stock', Math.max(0, book.stock - 1))}
+                                      onClick={() => updateField(String(book.id), 'stock', Math.max(0, book.stock - 1))}
                                       className="p-1 hover:bg-gray-200 rounded"
                                       title="Decrease stock"
                                     >
@@ -390,11 +390,11 @@ export default function AdminBooks() {
                                     <input
                                       type="number"
                                       value={book.stock}
-                                      onChange={(e) => updateField(book.id, 'stock', parseInt(e.target.value) || 0)}
+                                      onChange={(e) => updateField(String(book.id), 'stock', parseInt(e.target.value) || 0)}
                                       className="w-16 px-2 py-1 border rounded bg-white text-sm text-center"
                                     />
                                     <button
-                                      onClick={() => updateField(book.id, 'stock', book.stock + 1)}
+                                      onClick={() => updateField(String(book.id), 'stock', book.stock + 1)}
                                       className="p-1 hover:bg-gray-200 rounded"
                                       title="Increase stock"
                                     >
@@ -404,7 +404,7 @@ export default function AdminBooks() {
                                 ) : (
                                   <div
                                     onClick={() => startEditing(book)}
-                                    className="cursor-pointer hover:text-blue-600 transition group relative"
+                                    className="cursor-pointer hover:text-primary/50 transition group relative"
                                   >
                                     {book.stock}
                                     <div className="hidden group-hover:flex absolute left-0 top-6 gap-1 bg-white border rounded shadow-sm p-1 z-10">
@@ -413,7 +413,7 @@ export default function AdminBooks() {
                                           e.stopPropagation();
                                           startEditing(book);
                                           setTimeout(() => {
-                                            updateField(book.id, 'stock', Math.max(0, book.stock - 1));
+                                            updateField(String(book.id), 'stock', Math.max(0, book.stock - 1));
                                           }, 0);
                                         }}
                                         className="p-1 hover:bg-gray-200 rounded"
@@ -426,7 +426,7 @@ export default function AdminBooks() {
                                           e.stopPropagation();
                                           startEditing(book);
                                           setTimeout(() => {
-                                            updateField(book.id, 'stock', book.stock + 1);
+                                            updateField(String(book.id), 'stock', book.stock + 1);
                                           }, 0);
                                         }}
                                         className="p-1 hover:bg-gray-200 rounded"
@@ -443,7 +443,7 @@ export default function AdminBooks() {
                               <TableCell>
                                 {isEditing ? (
                                   <button
-                                    onClick={() => toggleStatus(book.id)}
+                                    onClick={() => toggleStatus(String(book.id))}
                                     className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm transition"
                                   >
                                     {book.status}
@@ -472,7 +472,7 @@ export default function AdminBooks() {
                                       <Check size={18} />
                                     </button>
                                     <button
-                                      onClick={() => cancelEditing(book.id)}
+                                      onClick={() => cancelEditing(String(book.id))}
                                       className="p-1 hover:bg-gray-200 rounded"
                                       title="Cancel"
                                     >
@@ -481,7 +481,7 @@ export default function AdminBooks() {
                                   </div>
                                 ) : (
                                   <button
-                                    onClick={() => handleDelete(book.id)}
+                                    onClick={() => handleDelete(String(book.id))}
                                     disabled={deleteMutation.isPending}
                                     className="p-1 hover:bg-red-100 rounded text-red-600 disabled:opacity-50"
                                     title="Delete book"

@@ -29,6 +29,10 @@ export default function Issued() {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+        // Clear localStorage to prevent infinite redirect loop
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         navigate("/login");
       } finally {
         setLoading(false);
@@ -59,7 +63,7 @@ export default function Issued() {
             <button
               onClick={() => setActiveTab("purchases")}
               className={`px-6 py-3 font-semibold transition-colors ${activeTab === "purchases"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
                 }`}
             >
@@ -68,7 +72,7 @@ export default function Issued() {
             <button
               onClick={() => setActiveTab("reading")}
               className={`px-6 py-3 font-semibold transition-colors ${activeTab === "reading"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-primary border-b-2 border-primary"
                 : "text-gray-600 hover:text-gray-800"
                 }`}
             >
@@ -139,11 +143,11 @@ export default function Issued() {
                   <p className="text-gray-500 text-lg">No books in your library yet</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
                   {issuedBooks.map((issued: any) => (
                     <div
                       key={issued.id}
-                      className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition max-w-[280px] mx-auto"
+                      className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition max-w-[380px]"
                     >
                       <div className="relative bg-gradient-to-r from-blue-500 to-blue-600 overflow-hidden" style={{ aspectRatio: '2/3' }}>
                         {issued.book.coverImage ? (
@@ -151,6 +155,9 @@ export default function Issued() {
                             src={issued.book.coverImage}
                             alt={issued.book.title}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder-book.png';
+                            }}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center p-4">
@@ -178,7 +185,7 @@ export default function Issued() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
                           <div
-                            className="bg-blue-600 h-2 rounded-full"
+                            className="bg-primary h-2 rounded-full"
                             style={{
                               width: `${(issued.currentPage / issued.totalPages) * 100}%`,
                             }}
@@ -186,7 +193,7 @@ export default function Issued() {
                         </div>
                         <a
                           href={`/book-reader/${issued.bookId}`}
-                          className="block text-center bg-blue-600 text-white py-1.5 text-sm rounded hover:bg-blue-300"
+                          className="block text-center bg-primary text-white py-1.5 text-sm rounded hover:bg-primary/50"
                         >
                           Continue Reading
                         </a>

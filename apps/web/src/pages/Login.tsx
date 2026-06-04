@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiPost } from "@/lib/api-client";
+import { useAuth } from "@/hooks/useAuth";
 
 type ErrorType = {
   email?: string;
@@ -9,11 +10,23 @@ type ErrorType = {
 
 export default function Login() {
   const navigate = useNavigate();
+  const { isAdmin, user } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<ErrorType>({});
   const [loading, setLoading] = useState(false);
+
+  // 🔄 Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      if (isAdmin) {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    }
+  }, [user, isAdmin, navigate]);
 
   // 🔍 Validation
   const validate = () => {
@@ -56,7 +69,12 @@ export default function Login() {
           localStorage.setItem('user', JSON.stringify(data.user));
         }
 
-        navigate("/dashboard");
+        // Redirect based on user role
+        if (data.user?.role === 'ADMIN') {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Login failed";
         alert(errorMessage);

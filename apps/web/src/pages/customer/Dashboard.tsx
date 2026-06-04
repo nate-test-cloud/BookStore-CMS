@@ -56,6 +56,11 @@ const Index = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
+        // Clear localStorage to prevent infinite redirect loop
+        // when token is expired/invalid
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         navigate("/login");
       }
     };

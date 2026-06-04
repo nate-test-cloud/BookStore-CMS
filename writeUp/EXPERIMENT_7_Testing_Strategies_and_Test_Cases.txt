@@ -1,0 +1,264 @@
+# EXPERIMENT 7: DEVELOPMENT OF TESTING STRATEGIES AND TEST CASES
+
+## AIM
+
+To develop testing strategies and test cases for the BookStore-CMS project using Basis Path Testing and Cyclomatic Complexity analysis.
+
+## TESTING STRATEGY
+
+### Basis Path Testing
+
+Basis Path Testing is a white-box testing technique that analyzes the control flow of a program and identifies independent execution paths. The number of required test cases is determined using Cyclomatic Complexity.
+
+**Cyclomatic Complexity Formula:**
+
+M = E - N + 2P
+
+Where:
+
+* E = Number of edges
+* N = Number of nodes
+* P = Number of connected components
+
+### Testing Process
+
+1. Identify decision points in the code.
+2. Calculate cyclomatic complexity.
+3. Determine independent execution paths.
+4. Design test cases for each path.
+5. Verify path and decision coverage.
+
+---
+
+## MODULE COMPLEXITY ANALYSIS
+
+| Module                 | Cyclomatic Complexity (M) |
+| ---------------------- | ------------------------- |
+| Authentication Service | 5                         |
+| Inventory Service      | 5                         |
+| Orders Service         | 7                         |
+| Cart Service           | 4                         |
+| Notification Service   | 4                         |
+| Analytics Service      | 6                         |
+
+Average Complexity = 5.1
+Total testcases = 31
+
+---
+
+## CRITICAL BUSINESS SCENARIOS
+
+### Scenario 1: Customer Registration and Login
+
+* User registration validation
+* Login authentication
+* Password security checks
+
+### Scenario 2: Browse and Search Books
+
+* Search functionality
+* Category filtering
+* Sorting and pagination
+
+### Scenario 3: Shopping Cart Operations
+
+* Add items to cart
+* Update quantity
+* Remove items
+
+### Scenario 4: Order Management
+
+* Order creation
+* Order tracking
+* Order cancellation
+
+### Scenario 5: Inventory Management
+
+* Stock updates
+* Low-stock alerts
+* Book management
+
+### Scenario 6: Analytics and Reporting
+
+* Dashboard generation
+* Sales reports
+* Customer analytics
+
+### Scenario 7: Role-Based Access Control
+
+* Admin access
+* Customer restrictions
+* Supplier operations
+
+---
+
+## TESTING TOOLS
+
+### Backend Testing
+
+* Jest
+* Supertest
+* NestJS Testing Module
+* Faker.js
+
+### Frontend Testing
+
+* Vitest
+* React Testing Library
+* Playwright
+* Mock Service Worker (MSW)
+
+### Performance Testing
+
+* Apache JMeter
+* Lighthouse
+* Chrome DevTools
+
+---
+
+## TEST CASES:
+
+### Test Case 1: Authentication Service
+
+**Objective:** Verify signup functionality.
+
+| Test Condition   | Expected Result   |
+| ---------------- | ----------------- |
+| Invalid Email    | Validation Error  |
+| Duplicate Email  | Conflict Error    |
+| Weak Password    | Validation Error  |
+| Database Failure | Error Handling    |
+| Valid Data       | Successful Signup |
+
+### Test Case 2: Order Service
+
+**Objective:** Verify order creation workflow.
+
+| Test Condition       | Expected Result           |
+| -------------------- | ------------------------- |
+| Unauthenticated User | 401 Error                 |
+| Empty Cart           | 400 Error                 |
+| Stock Unavailable    | 409 Error                 |
+| Invalid Coupon       | Continue Without Discount |
+| Payment Failure      | Rollback Transaction      |
+| Notification Failure | Retry Notification        |
+| Valid Order          | Order Created             |
+
+### Test Case 3: Inventory Service
+
+**Objective:** Verify stock management.
+
+| Test Condition        | Expected Result   |
+| --------------------- | ----------------- |
+| Invalid Book ID       | Not Found Error   |
+| Insufficient Stock    | Stock Error       |
+| Stock Above Threshold | Update Stock      |
+| Low Stock             | Alert Generated   |
+| Concurrent Access     | Consistent Update |
+
+
+## Test Case 4: Cart Service
+
+**Objective:** Verify checkout functionality.
+
+| Test Condition            | Expected Result            |
+| ------------------------- | -------------------------- |
+| Empty Cart                | Error Generated            |
+| Invalid Coupon            | Calculate Without Discount |
+| Coupon Processing Failure | Coupon Skipped             |
+| Valid Cart and Coupon     | Discount Applied           |
+
+
+## Test Case 5: Notification Service
+
+**Objective:** Verify notification publishing functionality.
+
+| Test Condition         | Expected Result       |
+| ---------------------- | --------------------- |
+| Invalid Event          | Notification Rejected |
+| Notifications Disabled | Notification Skipped  |
+| Delivery Failure       | Retry Triggered       |
+| Successful Delivery    | Notification Logged   |
+
+
+## Test Case 6: Supplier Service
+
+**Objective:** Verify purchase order creation functionality.
+
+| Test Condition      | Expected Result        |
+| ------------------- | ---------------------- |
+| Invalid Supplier    | Error Generated        |
+| Invalid Quantity    | Validation Error       |
+| Insufficient Budget | Order Rejected         |
+| Database Failure    | Transaction Rollback   |
+| Valid Inputs        | Purchase Order Created |
+
+
+## Test Case 7: Analytics Service
+
+**Objective:** Verify report generation functionality.
+
+| Test Condition      | Expected Result         |
+| ------------------- | ----------------------- |
+| Invalid Date Range  | Validation Error        |
+| No Data Available   | Empty Report Generated  |
+| Query Failure       | Error Handling          |
+| Aggregation Failure | Partial Report Returned |
+| Formatting Failure  | Raw Data Returned       |
+| Valid Request       | Report Generated        |
+
+
+## Test Case 8: API Endpoint Testing
+
+**Objective:** Verify critical API endpoints.
+
+| Test Condition              | Expected Result      |
+| --------------------------- | -------------------- |
+| Valid Signup Request        | User Created         |
+| Invalid Login Credentials   | Authentication Error |
+| Valid Order Request         | Order Created        |
+| Invalid Cart Request        | Validation Error     |
+| Inventory Retrieval Request | Book List Returned   |
+| Stock Adjustment Request    | Inventory Updated    |
+
+
+## Test Case 9: Database Transaction Testing
+
+**Objective:** Verify transaction consistency and reliability.
+
+| Test Condition                | Expected Result           |
+| ----------------------------- | ------------------------- |
+| Transaction Rollback Scenario | Changes Reverted          |
+| Deadlock Situation            | Recovery Performed        |
+| Transaction Timeout           | Safe Termination          |
+| Successful Commit             | Data Persisted            |
+| Concurrent Transactions       | Consistent Database State |
+
+
+## Test Case 10: End-to-End Workflow Testing
+
+**Objective:** Verify complete business workflows.
+
+| Test Condition                    | Expected Result                        |
+| --------------------------------- | -------------------------------------- |
+| Registration to Checkout Workflow | Successful Order Placement             |
+| Registration Validation Failure   | Retry and Success                      |
+| Invalid Login Attempt             | Successful Retry                       |
+| Search and Coupon Checkout        | Discount Applied Successfully          |
+| Payment Failure During Checkout   | Retry and Success                      |
+| Notification Failure After Order  | Order Created and Notification Retried |
+
+
+## TEST ENVIRONMENT
+
+* Dedicated test database
+* Mock external APIs
+* Test data fixtures
+* Automated CI/CD pipeline
+* Code coverage reporting
+
+---
+
+## CONCLUSION
+
+Testing strategies and test cases were successfully developed for the BookStore-CMS project using the Basis Path Testing approach. Cyclomatic Complexity was calculated for critical modules to identify independent execution paths and determine the minimum number of required test cases. The developed test cases cover major business functionalities including authentication, inventory management, order processing, notifications, and analytics. The analysis shows that the system has moderate complexity with an average cyclomatic complexity of 5.1, indicating good maintainability and manageable control flow. The testing strategy provides systematic coverage of important execution paths and helps improve software quality, reliability, and defect detection efficiency.

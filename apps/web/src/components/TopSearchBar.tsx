@@ -27,7 +27,7 @@ const TopSearchBar = () => {
 
   return (
     <header className="sticky top-0 z-20 bg-primary/5 backdrop-blur-xl border-b border-primary/10 px-6 py-3.5 flex items-center gap-4">
-      <div className="relative flex-1 max-w-xl group">
+      <div className="relative flex-1 group width-full">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/50 transition-colors duration-200 group-focus-within:text-primary" />
         <input
           type="text"

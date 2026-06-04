@@ -20,6 +20,10 @@ export default function OnlineRead() {
         }
       } catch (error) {
         console.error("Error fetching issued books:", error);
+        // Clear localStorage to prevent infinite redirect loop
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         navigate("/login");
       } finally {
         setLoading(false);
@@ -48,15 +52,18 @@ export default function OnlineRead() {
           {issuedBooks.length === 0 ? (
             <p className="text-gray-500">No books in your library</p>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
               {issuedBooks.map((book: any) => (
-                <div key={book.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition max-w-[280px] mx-auto">
+                <div key={book.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition max-w-[380px]">
                   <div className="relative bg-gradient-to-r from-blue-500 to-blue-600 overflow-hidden" style={{ aspectRatio: '2/3' }}>
                     {book.book?.coverImage ? (
                       <img
                         src={book.book.coverImage}
                         alt={book.book.title}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/placeholder-book.png';
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center p-3">
@@ -81,7 +88,7 @@ export default function OnlineRead() {
                     </p>
                     <a
                       href={`/book-reader/${book.bookId}`}
-                      className="block text-center bg-blue-600 text-white py-1.5 text-sm rounded hover:bg-blue-300 transition"
+                      className="block text-center bg-primary text-white py-1.5 text-sm rounded hover:bg-primary/50 transition"
                     >
                       Read Online
                     </a>

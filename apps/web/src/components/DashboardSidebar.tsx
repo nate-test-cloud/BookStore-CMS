@@ -46,9 +46,13 @@ const DashboardSidebar = () => {
         method: "POST",
         credentials: "include",
       });
-      navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
+    } finally {
+      // Clear localStorage
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
       navigate("/login");
     }
   };
@@ -61,7 +65,7 @@ const DashboardSidebar = () => {
       onMouseLeave={() => setIsCollapsed(true)}
     >
       {/* Logo */}
-      <div className="px-6 pt-7 pb-6">
+      <div className="px-6 pt-7 pb-6 cursor-pointer" onClick={() => navigate("/dashboard")}>
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-primary/20 flex-shrink-0">
             <BookOpen className="h-5 w-5 text-primary-foreground" />

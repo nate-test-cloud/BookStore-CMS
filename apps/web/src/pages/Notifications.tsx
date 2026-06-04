@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import AdminSidebar from "@/components/AdminSidebar";
 import TopSearchBar from "@/components/TopSearchBar";
 import { apiGet } from "@/lib/api-client";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -16,6 +19,10 @@ export default function Notifications() {
         setNotifications(data.notifications || []);
       } catch (error) {
         console.error("Error fetching notifications:", error);
+        // Clear localStorage to prevent infinite redirect loop
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         navigate("/login");
       } finally {
         setLoading(false);
@@ -35,7 +42,7 @@ export default function Notifications() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardSidebar />
+      {isAdmin ? <AdminSidebar /> : <DashboardSidebar />}
       <div style={{ marginLeft: "var(--sidebar-width, 272px)" }}>
         <TopSearchBar />
         <main className="p-6">

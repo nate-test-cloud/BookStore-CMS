@@ -1,27 +1,24 @@
 import { useState } from "react";
-import { Star, BookmarkPlus, BookOpen, ShoppingCart } from "lucide-react";
+import { Star, BookmarkPlus, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { apiPost } from "@/lib/api-client";
 
 interface BookCardProps {
   id: string;
-  isbn: string;
+  isbn?: string;
   coverImage?: string;
   title: string;
-  authors?: Array<{ id: string; name: string }>;
+  author?: string;
   rating?: number;
-  currentPrice?: number;
-  basePrice?: number;
+  price?: number;
   stock?: number;
   onFavouriteChange?: (isFavourite: boolean) => void;
 }
 
-const BookCard = ({ id, isbn, coverImage, title, authors, rating = 0, currentPrice, basePrice, stock = 0, onFavouriteChange }: BookCardProps) => {
+const BookCard = ({ id, isbn, coverImage, title, author = 'Unknown Author', rating = 0, price = 0, stock = 0, onFavouriteChange }: BookCardProps) => {
   const navigate = useNavigate();
   const [isFavourite, setIsFavourite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const price = currentPrice || basePrice || 0;
-  const author = authors?.[0]?.name || 'Unknown Author';
 
   const handleDetailsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -71,6 +68,9 @@ const BookCard = ({ id, isbn, coverImage, title, authors, rating = 0, currentPri
           alt={title}
           loading="lazy"
           className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-108"
+          onError={(e) => {
+            e.currentTarget.src = '/placeholder-book.png';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
 
@@ -81,8 +81,8 @@ const BookCard = ({ id, isbn, coverImage, title, authors, rating = 0, currentPri
               onClick={handleFavourite}
               disabled={isLoading || isFavourite}
               className={`h-8 w-8 rounded-lg backdrop-blur-sm flex items-center justify-center shadow-lg transition-colors ${isFavourite
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card/80 text-muted-foreground hover:bg-primary hover:text-primary-foreground'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card/80 text-muted-foreground hover:bg-primary hover:text-primary-foreground'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               title={isFavourite ? "Added to Favourites" : "Add to Favourites"}
             >

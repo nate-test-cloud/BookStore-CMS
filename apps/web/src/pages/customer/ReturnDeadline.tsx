@@ -16,6 +16,10 @@ export default function ReturnDeadline() {
         setIssuedBooks(data.issuedBooks || []);
       } catch (error) {
         console.error("Error fetching issued books:", error);
+        // Clear localStorage to prevent infinite redirect loop
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         navigate("/login");
       } finally {
         setLoading(false);
@@ -40,9 +44,10 @@ export default function ReturnDeadline() {
         <TopSearchBar />
         <main className="p-6">
           <h1 className="text-3xl font-bold mb-6">Books - Return Deadline</h1>
+          <p className="text-gray-500">No books to be returned</p>
 
-          {issuedBooks.length === 0 ? (
-            <p className="text-gray-500">No issued books</p>
+          {/* {issuedBooks.length === 0 ? (
+            <p className="text-gray-500">No books to be returned</p>
           ) : (
             <div className="space-y-4">
               {issuedBooks.map((book: any) => {
@@ -81,7 +86,8 @@ export default function ReturnDeadline() {
                 );
               })}
             </div>
-          )}
+          )} */}
+
         </main>
       </div>
     </div>

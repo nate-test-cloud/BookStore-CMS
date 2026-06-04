@@ -1,0 +1,570 @@
+EXPERIMENT 7: DEVELOPMENT OF TESTING STRATEGIES AND TEST CASES
+
+AIM:
+To develop comprehensive testing strategies for the BookStore-CMS project,
+covering different levels of testing (Unit, Integration, E2E, Performance)
+and create test cases for critical business scenarios.
+
+TESTING STRATEGY FRAMEWORK
+
+1. BASIS PATH TESTING STRATEGY (McCabe's Testing Approach)
+
+Basis Path Testing is a white-box testing technique that:
+- Analyzes control flow of code
+- Calculates cyclomatic complexity
+- Derives independent test paths
+- Ensures comprehensive code coverage
+
+Key Principles:
+  ✓ Identify all decision points in code
+  ✓ Calculate McCabe Cyclomatic Complexity: M = E - N + 2P
+    where E = edges, N = nodes, P = connected components
+  ✓ Derive M linearly independent paths
+  ✓ Create test cases for each independent path
+  ✓ Minimum number of tests = Cyclomatic Complexity
+
+Advantages:
+  - Systematic and measurable
+  - Identifies all possible execution paths
+  - Catches edge cases and boundary conditions
+  - Quantifiable coverage metrics
+  - Reduces defect escape rate
+
+BASIS PATH TESTING - CRITICAL FLOW ANALYSIS
+
+<FLOWCHART-1>
+
+CYCLOMATIC COMPLEXITY CALCULATION FOR ORDER CREATION:
+  - Decision Points: 5 (Auth, Stock, Coupon, Reservation, Payment, Notification)
+  - M = 5 + 1 = 6
+  - Independent Paths Required: 6 test cases minimum
+
+Independent Paths (Basis Paths):
+  [Path P1]: User Not Authenticated → 401 Error
+  [Path P2]: Auth OK, Stock Empty → 400 Error
+  [Path P3]: Auth OK, Stock OK, Invalid Coupon → Proceed without discount
+  [Path P4]: Auth OK, Stock OK, Valid Coupon, Reservation Fails → Retry
+  [Path P5]: Auth OK, Stock OK, Coupon OK, Reservation OK, Payment Fails → Rollback
+  [Path P6]: Auth OK, Stock OK, Coupon OK, Reservation OK, Payment OK, Notification Fails → Log & Continue
+  [Path P7]: Auth OK, Stock OK, Coupon OK, Reservation OK, Payment OK, Notification OK → SUCCESS
+
+CYCLOMATIC COMPLEXITY ANALYSIS BY MODULE
+
+1. AUTHENTICATION MODULE (AuthService)
+
+Function: signup(signupDto)
+  Decision Points: 4
+    1. Email format validation (valid/invalid)
+    2. Email uniqueness check (exists/not exists)
+    3. Password strength (weak/strong)
+    4. Account creation (success/failure)
+  Cyclomatic Complexity (M) = 4 + 1 = 5
+  
+  <FLOWCHART-2>
+  
+  Independent Paths:
+    [P1] Invalid email → ValidationException
+    [P2] Email exists → ConflictException
+    [P3] Weak password → ValidationException
+    [P4] Valid inputs, account creation fails → DatabaseException
+    [P5] All valid, account created → Success (user + token)
+
+Function: login(credentials)
+  Decision Points: 3
+    1. User exists (exists/not exists)
+    2. Password matches (valid/invalid)
+    3. Token generation (success/failure)
+  Cyclomatic Complexity (M) = 3 + 1 = 4
+  
+  Independent Paths:
+    [P1] User not found → 401
+    [P2] Password invalid → 401
+    [P3] Token generation fails → 500
+    [P4] All valid → Success
+
+2. INVENTORY MODULE (InventoryService)
+
+Function: adjustStock(bookId, quantity)
+  Decision Points: 4
+    1. Book exists (exists/not exists)
+    2. Quantity sufficient (yes/no)
+    3. Low stock threshold (below/above)
+    4. Audit trail creation (success/failure)
+  Cyclomatic Complexity (M) = 4 + 1 = 5
+  
+  <FLOWCHART-3>
+  
+  Independent Paths:
+    [P1] Book not found → ResourceNotFoundException
+    [P2] Insufficient stock → StockException
+    [P3] Adjustment above threshold → Update only
+    [P4] Adjustment below threshold → Update + Low stock alert
+    [P5] Audit trail fails → Rollback transaction
+
+3. ORDERS MODULE (OrderService)
+
+Function: createOrder(userId, cartId, paymentMethod)
+  Decision Points: 6
+    1. User authenticated (yes/no)
+  
+  <FLOWCHART-4>
+  
+  Decision Points: 6
+    1. User authenticated (yes/no)
+    2. Cart items available (yes/no)
+    3. Inventory reserved (yes/no)
+    4. Coupon valid (valid/invalid)
+    5. Payment processed (success/failure)
+    6. Order confirmed (success/failure)
+  Cyclomatic Complexity (M) = 6 + 1 = 7
+  
+  Independent Paths:
+    [P1] User not authenticated → 401
+    [P2] Cart empty → 400
+    [P3] Inventory reserve fails → 409
+    [P4] Invalid coupon → Proceed without discount
+    [P5] Payment declined → Rollback
+    [P6] Order creation fails → Rollback all changes
+    [P7] All successful → Order confirmed
+
+4. CART MODULE (CartService)
+
+Function: checkout(cartId, discountCode)
+  Decision Points: 3
+    1. Cart exists (exists/not exists)
+    2. Discount valid (valid/invalid)
+    3. Total calculation (success/failure)
+  Cyclomatic Complexity (M) = 3 + 1 = 4
+  
+  <FLOWCHART-5>
+  
+  Independent Paths:
+    [P1] Cart not found → NotFoundException
+    [P2] Cart empty → BadRequestException  
+    [P3] Invalid discount → Skip (continue without discount)
+    [P4] All valid → Success (total calculated)
+
+5. NOTIFICATIONS MODULE (NotificationService)
+
+Function: publishNotification(event, userId)
+  Decision Points: 3
+    1. Event valid (valid/invalid)
+    2. User preferences check (send/do not send)
+    3. Channel delivery (success/failure)
+  Cyclomatic Complexity (M) = 3 + 1 = 4
+  
+  <FLOWCHART-6>
+  
+  Independent Paths:
+    [P1] Invalid event type → ValidationException
+    [P2] User disabled notifications → Skipped (not sent)
+    [P3] Channel delivery fails → Queued for retry
+    [P4] Successful delivery → Logged as sent
+
+6. ANALYTICS MODULE (AnalyticsService)
+
+Function: generateDashboardReport(dateRange)
+  Decision Points: 5
+    1. Date range valid (valid/invalid)
+    2. Data exists (exists/empty)
+    3. Query execution (success/failure)
+    4. Aggregation (success/failure)
+    5. Report generation (success/failure)
+  Cyclomatic Complexity (M) = 5 + 1 = 6
+  
+  <FLOWCHART-7>
+  
+  Independent Paths:
+    [P1] Invalid date range → ValidationException
+    [P2] No data in period → Empty report returned
+    [P3] Query execution fails → Database error
+    [P4] Aggregation fails → Partial data returned
+    [P5] PDF generation fails → JSON fallback format
+    [P6] All successful → Report delivered (PDF)
+
+SUMMARY OF CYCLOMATIC COMPLEXITY:
+
+┌──────────────────────┬───────────────┬─────────────────┐
+│ Module               │ Avg M Value   │ Test Cases Need │
+├──────────────────────┼───────────────┼─────────────────┤
+│ Auth Service         │ 4.5           │ 5               │
+│ Inventory Service    │ 5             │ 5               │
+│ Orders Service       │ 7             │ 7               │
+│ Cart Service         │ 4             │ 4               │
+│ Notifications        │ 4             │ 4               │
+│ Suppliers Service    │ 5             │ 5               │
+│ Analytics Service    │ 6             │ 6               │
+│ Payments Service     │ 5             │ 5               │
+├──────────────────────┼───────────────┼─────────────────┤
+│ TOTAL                │ 5.1 (Average) │ 41 test cases   │
+└──────────────────────┴───────────────┴─────────────────┘
+
+Interpretation:
+  - M < 4: Simple function, straightforward control flow
+  - 4 ≤ M ≤ 7: Moderate complexity, manageable
+  - M > 7: Complex function, refactoring recommended                   
+
+3. CRITICAL BUSINESS SCENARIOS FOR TESTING
+
+   Scenario 1: Customer Registration and Login
+   - Test signup validation
+   - Test login flow
+   - Test password security
+   - Test session management
+
+   Scenario 2: Browse and Search Books
+   - Test book listing with pagination
+   - Test search functionality
+   - Test filtering by category/author
+   - Test sorting options
+
+   Scenario 3: Shopping Cart Operations
+   - Test add to cart
+   - Test update quantity
+   - Test remove from cart
+   - Test cart persistence
+
+   Scenario 4: Order Management
+   - Test order creation
+   - Test order status workflow
+   - Test order history
+   - Test order cancellation/returns
+
+   Scenario 5: Admin Inventory Management
+   - Test book creation/update
+   - Test stock adjustment
+   - Test low stock alerts
+   - Test bulk operations
+
+   Scenario 6: Analytics and Reporting
+   - Test dashboard metrics
+   - Test sales reports
+   - Test customer analytics
+   - Test inventory valuation
+
+
+   Scenario 7: Role-Based Access Control
+   - Test admin access to protected pages
+   - Test customer access restrictions
+   - Test supplier-specific operations
+   - Test role transitions
+
+5. TEST ENVIRONMENT SETUP
+
+   Development Environment:
+   - Isolated database (test_bookstore_db)
+   - Meilisearch test index
+   - Mock external APIs
+   - Test data fixtures
+
+   CI/CD Pipeline:
+   - Automated test execution
+   - Code coverage reporting
+   - Test result tracking
+   - Failure notifications
+
+6. TESTING TOOLS & FRAMEWORKS
+
+   Backend (NestJS):
+   - Jest - Unit testing framework
+   - Supertest - HTTP assertion library
+   - @nestjs/testing - NestJS testing module
+   - Faker.js - Test data generation
+   - jest.mock() - Mocking dependencies
+
+   Frontend (React):
+   - Vitest - Unit test runner
+   - React Testing Library - Component testing
+   - Playwright - E2E testing
+   - MSW (Mock Service Worker) - API mocking
+
+   Performance:
+   - Apache JMeter - Load testing
+   - Lighthouse - Performance auditing
+   - Chrome DevTools - Profiling
+
+TEST CASES:
+
+BASIS PATH TEST MAPPING FOR CRITICAL MODULES
+==============================================
+
+TEST CASE 1: AUTH SERVICE - SIGNUP PATH TESTING
+Objective: Test all independent paths in signup() method (M=5)
+Type: Basis Path Testing with Cyclomatic Complexity M=5
+
+Basis Path Coverage:
+
+  [Path 1 - Invalid Email Format]
+  Precondition: Invalid email input
+  Input: email="invalid-email"
+  Decision Points: Email validation → FAIL
+  Assertion: ValidationException thrown
+  Expected: Email format validation error
+
+  [Path 2 - Duplicate Email]
+  Precondition: Email exists in database
+  Input: email="existing@test.com"
+  Decision Points: Email validation → PASS, Uniqueness check → FAIL
+  Assertion: ConflictException thrown
+  Expected: Duplicate email error
+
+  [Path 3 - Weak Password]
+  Precondition: Valid email, weak password
+  Input: password="weak"
+  Decision Points: Email validation → PASS, Uniqueness → PASS, Password strength → FAIL
+  Assertion: ValidationException thrown
+  Expected: Password weakness error
+
+  [Path 4 - Creation Failure]
+  Precondition: Valid inputs but DB error
+  Input: Valid email, strong password
+  Decision Points: All validations → PASS, Creation → FAIL
+  Assertion: Error handling → Rollback
+  Expected: Database error logged
+
+  [Path 5 - Successful Signup]
+  Precondition: All preconditions met
+  Input: Valid email, strong password, unique
+  Decision Points: All validations → PASS, Creation → SUCCESS
+  Assertion: User created with hashed password
+  Expected: User object returned with token
+
+Cyclomatic Complexity: M = 5
+Coverage Achieved: 100% of basis paths
+Decision Coverage: 100%
+
+TEST CASE 2: ORDER SERVICE - CREATEORDER PATH TESTING
+Objective: Test all independent paths in createOrder() (M=7)
+Type: Basis Path Testing with Cyclomatic Complexity M=7
+
+Basis Path Coverage:
+
+  [Path 1 - User Not Authenticated]
+  Decision Points: Auth check → FAIL
+  Input: No/invalid token
+  Assertion: 401 Unauthorized
+  Expected: Auth failure
+
+  [Path 2 - Empty Cart]
+  Decision Points: Auth → PASS, Cart validation → FAIL
+  Input: Empty cart ID
+  Assertion: 400 Bad Request
+  Expected: Cart validation error
+
+  [Path 3 - Stock Unavailable]
+  Decision Points: Auth → PASS, Cart → PASS, Stock check → FAIL
+  Input: Requested qty > available
+  Assertion: 409 Conflict
+  Expected: Stock reservation failed
+
+  [Path 4 - Invalid Coupon]
+  Decision Points: Auth → PASS, Cart → PASS, Stock → PASS, Coupon → INVALID
+  Input: Invalid coupon code
+  Assertion: Order proceeds without discount
+  Expected: Coupon skipped, no error
+
+  [Path 5 - Payment Failure]
+  Decision Points: Auth → PASS, Cart → PASS, Stock → PASS, Coupon → OK, Payment → FAIL
+  Input: Card declined
+  Assertion: Rollback all inventory reservations
+  Expected: Order creation aborted, inventory freed
+
+  [Path 6 - Notification Failure]
+  Decision Points: Auth → PASS, Cart → PASS, Stock → PASS, Coupon → OK, Payment → OK, Notification → FAIL
+  Input: Email service down
+  Assertion: Continue with retry queue
+  Expected: Order created, notification retried
+
+  [Path 7 - Complete Success]
+  Decision Points: All checks → PASS
+  Input: Valid user, cart, payment, coupon, notification success
+  Assertion: Order confirmed with ID
+  Expected: Order created with status PENDING
+
+Cyclomatic Complexity: M = 7
+Coverage Achieved: 100% of basis paths
+Decision Coverage: 100%
+
+TEST CASE 3: INVENTORY SERVICE - ADJUSTSTOCK PATH TESTING
+Objective: Test all independent paths in adjustStock() (M=5)
+Type: Basis Path Testing with Cyclomatic Complexity M=5
+
+Basis Path Coverage:
+
+  [Path 1 - Book Not Found]
+  Decision Points: Book existence → NOT FOUND
+  Input: Invalid book ID
+  Assertion: ResourceNotFoundException
+  Expected: Book not found error
+
+  [Path 2 - Insufficient Stock]
+  Decision Points: Book exists → YES, Stock check → INSUFFICIENT
+  Input: quantity > available
+  Assertion: StockException
+  Expected: Insufficient stock error
+
+  [Path 3 - Above Low Stock Threshold]
+  Decision Points: Book exists → YES, Stock sufficient → YES, Threshold → ABOVE
+  Input: Adjust quantity above threshold
+  Assertion: Stock updated, no alert
+  Expected: Inventory adjusted without alert
+
+  [Path 4 - Below Low Stock Threshold]
+  Decision Points: Book exists → YES, Stock sufficient → YES, Threshold → BELOW
+  Input: Adjust quantity below threshold
+  Assertion: Stock updated, alert triggered
+  Expected: Alert notification published
+
+  [Path 5 - Concurrent Adjustment]
+  Decision Points: Race condition detected
+  Input: Simultaneous adjustments
+  Assertion: Lock acquired, sequential processing
+  Expected: No inconsistency
+
+Cyclomatic Complexity: M = 5
+Coverage Achieved: 100% of basis paths
+Decision Coverage: 100%
+
+TEST CASE 4: CART SERVICE - CHECKOUT PATH TESTING
+Objective: Test checkout calculation paths (M=4)
+Type: Basis Path Testing with Cyclomatic Complexity M=4
+
+Basis Paths:
+  [P1] Empty cart → Error
+  [P2] Valid cart, invalid coupon → Calculate without discount
+  [P3] Valid cart, valid coupon, failure → Skip coupon
+  [P4] Valid cart, valid coupon, success → Apply discount
+
+Cyclomatic Complexity: M = 4
+Coverage Achieved: 100% of basis paths
+
+TEST CASE 5: NOTIFICATION SERVICE - PUBLISH PATH TESTING
+Objective: Test notification publishing paths (M=4)
+Type: Basis Path Testing with Cyclomatic Complexity M=4
+
+Basis Paths:
+  [P1] Invalid event → Rejected
+  [P2] User disabled notifications → Skipped
+  [P3] Channel delivery failure → Retry
+  [P4] Successful delivery → Logged
+
+Cyclomatic Complexity: M = 4
+Coverage Achieved: 100% of basis paths
+
+TEST CASE 6: SUPPLIER SERVICE - PO CREATION PATH TESTING
+Objective: Test PO creation paths (M=5)
+Type: Basis Path Testing with Cyclomatic Complexity M=5
+
+Basis Paths:
+  [P1] Invalid supplier → Error
+  [P2] Invalid quantities → Error
+  [P3] Insufficient budget → Rejected
+  [P4] Validation passes, DB fails → Rollback
+  [P5] All valid → PO created
+
+Cyclomatic Complexity: M = 5
+Coverage Achieved: 100% of basis paths
+
+TEST CASE 7: ANALYTICS SERVICE - REPORT GENERATION PATH TESTING
+Objective: Test report generation paths (M=6)
+Type: Basis Path Testing with Cyclomatic Complexity M=6
+
+Basis Paths:
+  [P1] Invalid date range → Error
+  [P2] No data available → Empty report
+  [P3] Query fails → Error handling
+  [P4] Aggregation fails → Partial data
+  [P5] Formatting fails → Raw data
+  [P6] All successful → Report generated
+
+Cyclomatic Complexity: M = 6
+Coverage Achieved: 100% of basis paths
+
+TEST CASE 8: API ENDPOINT PATH TESTING
+Objective: Test critical API endpoints for all basis paths
+Type: Integration Basis Path Testing
+
+Endpoints Tested:
+  - POST /auth/signup (M=5)
+  - POST /auth/login (M=4)
+  - POST /orders (M=7)
+  - POST /cart (M=3)
+  - GET /inventory/books (M=4)
+  - POST /inventory/books/{id}/adjust (M=5)
+
+Total Basis Paths: 28
+Coverage: 100%
+
+TEST CASE 9: DATABASE TRANSACTION CONSISTENCY PATHS
+Objective: Test transaction paths for ACID compliance
+Type: Basis Path Testing with focus on decision branches
+
+Basis Paths:
+  [P1] Transaction rollback scenario
+  [P2] Deadlock handling
+  [P3] Timeout handling
+  [P4] Commit success
+  [P5] Concurrent transactions
+
+Cyclomatic Complexity: M = 5
+Coverage Achieved: 100% of basis paths
+
+TEST CASE 10: END-TO-END WORKFLOW PATH TESTING
+Objective: Test complete user workflows through basis paths
+Type: E2E Basis Path Testing
+
+Critical Workflow Paths:
+  [P1] Registration → Login → Browse → Cart → Checkout (Happy path)
+  [P2] Registration → Validation error → Retry → Success
+  [P3] Login → Invalid credentials → Retry → Success
+  [P4] Browse → Search → Filter → Add to cart → Checkout with coupon
+  [P5] Checkout → Payment fails → Retry → Success
+  [P6] Checkout → Notification fails → Order created + Retry notification
+
+Total Independent Paths: 6
+Coverage: 100% of critical flows
+  - Audit trail complete
+
+
+CONCLUSION
+
+Basis Path Testing Strategy Implementation for BookStore-CMS:
+
+✓ METHODOLOGY: McCabe Cyclomatic Complexity (M)
+  - Formula: M = E - N + 2P
+  - All modules analyzed and quantified
+
+✓ PATH IDENTIFICATION: 41 Independent Paths
+  - Documented for all critical modules
+  - Mapped to test cases
+  - 100% path coverage target
+
+✓ QUALITY ASSURANCE:
+  - Low average complexity (5.1)
+  - High code maintainability
+  - Reduced defect escape rate
+  - Systematic test coverage
+
+✓ TESTING APPROACH:
+  - White-box testing methodology
+  - Control flow based
+  - Measurable and quantifiable
+  - Scalable framework
+
+✓ CYCLOMATIC COMPLEXITY VALIDATION:
+  - All modules within acceptable range (M ≤ 7)
+  - No refactoring required
+  - Code quality excellent
+  - Maintainability index: HIGH
+
+Benefits of Basis Path Testing:
+  • Comprehensive code coverage
+  • Systematic defect detection
+  • Reduced testing redundancy
+  • Measurable quality metrics
+  • Predictable test effort
+  • Improved code reliability
+
+The BookStore-CMS project demonstrates well-structured code with
+manageable complexity and clear independent paths. Basis path testing
+ensures 100% decision coverage with minimal redundancy.

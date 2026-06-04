@@ -45,13 +45,17 @@ const AdminSidebar = () => {
 
     const handleLogout = async () => {
         try {
-            await fetch("http://localhost:3000/api/auth/logout", {
+            await fetch("http://localhost:5000/api/logout", {
                 method: "POST",
                 credentials: "include",
             });
-            navigate("/login");
         } catch (error) {
             console.error("Logout error:", error);
+        } finally {
+            // Clear localStorage
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
             navigate("/login");
         }
     };

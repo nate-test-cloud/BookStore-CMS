@@ -28,6 +28,7 @@ import AdminPOS from "./pages/admin/pos.tsx";
 import AdminOrders from "./pages/admin/orders.tsx";
 import AdminInventory from "./pages/admin/inventory.tsx";
 import AdminSettings from "./pages/admin/settings.tsx";
+import Keys from "./pages/Normal.tsx";
 
 //Start here
 const queryClient = new QueryClient();
@@ -65,6 +66,7 @@ const App = () => (
           <Route path="/admin/suppliers" element={<AdminSuppliers />} />
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/api/keys" element={<Keys />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

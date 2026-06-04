@@ -13,14 +13,19 @@ export interface Book {
   id: number;
   title: string;
   author: string;
+  authorIds: string[];
   category: string;
+  categoryId: string | null;
   /** @nullable */
   isbn?: string | null;
   price: number;
+  basePrice: number;
+  discountPercent: number;
   /** @nullable */
   costPrice?: number | null;
   stock: number;
   status: string;
+  rating: number;
   /** @nullable */
   coverImage?: string | null;
   /** @nullable */

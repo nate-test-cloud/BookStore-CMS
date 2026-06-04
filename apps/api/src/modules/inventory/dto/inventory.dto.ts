@@ -117,6 +117,11 @@ export class UpdateBookDto {
     discountPercent?: number;
 
     @IsOptional()
+    @IsNumber()
+    @Min(0)
+    stock?: number;
+
+    @IsOptional()
     @IsString()
     format?: BookFormat;
 

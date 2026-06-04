@@ -37,9 +37,13 @@ export class InventoryService {
             id: book.id, // Keep CUID ID for database queries
             title: book.title,
             author: book.authors?.[0]?.name || 'Unknown',
+            authorIds: book.authors?.map((a: any) => a.id) || [],
+            categoryId: book.category?.id || null,
             category: book.category?.name || 'Unknown',
             isbn: book.isbn,
             price: book.currentPrice || book.basePrice,
+            basePrice: book.basePrice,
+            discountPercent: book.discountPercent || 0,
             costPrice: book.basePrice,
             stock: book.stock,
             status: book.stock > 10 ? 'In Stock' : book.stock > 0 ? 'Low Stock' : 'Out of Stock',
@@ -153,10 +157,11 @@ export class InventoryService {
                 category: true,
                 authors: true,
                 publisher: true,
+                reviews: true,
             },
         });
 
-        return updatedBook;
+        return this.transformBook(updatedBook);
     }
 
     async getBooks(

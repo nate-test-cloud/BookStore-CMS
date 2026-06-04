@@ -91,11 +91,14 @@ export default function AdminBooks() {
 
       const updates: any = {};
       if (book.title !== originalBook.title) updates.title = book.title;
-      // Map display fields to backend fields
-      if (book.author !== originalBook.author) updates.author = book.author;
-      if (book.category !== originalBook.category) updates.category = book.category;
       if (book.price !== originalBook.price) updates.basePrice = book.price;
       if (book.stock !== originalBook.stock) updates.stock = book.stock;
+      if (book.discountPercent !== originalBook.discountPercent) updates.discountPercent = book.discountPercent;
+      // Only include IDs if they were changed/edited
+      if (book.categoryId && book.categoryId !== originalBook.categoryId) updates.categoryId = book.categoryId;
+      if (book.authorIds && book.authorIds.length > 0 && JSON.stringify(book.authorIds) !== JSON.stringify(originalBook.authorIds)) {
+        updates.authorIds = book.authorIds;
+      }
 
       if (Object.keys(updates).length === 0) {
         cancelEditing(String(book.id));
@@ -119,17 +122,6 @@ export default function AdminBooks() {
         console.error('Error deleting book:', error);
       }
     }
-  };
-
-  const toggleStatus = (bookId: string) => {
-    const book = editingBooks[bookId] || books.find(b => String(b.id) === bookId);
-    if (!book) return;
-
-    const statusOrder = ['In Stock', 'Low Stock', 'Out of Stock'];
-    const currentIndex = statusOrder.indexOf(book.status);
-    const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
-
-    updateField(bookId, 'status', nextStatus);
   };
 
   const getDisplayedBooks = () => {
@@ -227,6 +219,7 @@ export default function AdminBooks() {
                         <TableHead>Author</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Price</TableHead>
+                        <TableHead>Discount %</TableHead>
                         <TableHead>Stock</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Action</TableHead>
@@ -240,6 +233,7 @@ export default function AdminBooks() {
                             <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-[50px]" /></TableCell>
                             <TableCell><Skeleton className="h-6 w-[80px]" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
@@ -247,7 +241,7 @@ export default function AdminBooks() {
                         ))
                       ) : books.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">
                             No books found.
                           </TableCell>
                         </TableRow>
@@ -277,40 +271,16 @@ export default function AdminBooks() {
 
                               {/* Author */}
                               <TableCell>
-                                {isEditing ? (
-                                  <input
-                                    type="text"
-                                    value={book.author}
-                                    onChange={(e) => updateField(String(book.id), 'author', e.target.value)}
-                                    className="w-full px-2 py-1 border rounded bg-white text-sm"
-                                  />
-                                ) : (
-                                  <div
-                                    onClick={() => startEditing(book)}
-                                    className="cursor-pointer hover:text-primary transition"
-                                  >
-                                    {book.author}
-                                  </div>
-                                )}
+                                <div className="cursor-pointer hover:text-primary transition">
+                                  {book.author}
+                                </div>
                               </TableCell>
 
                               {/* Category */}
                               <TableCell>
-                                {isEditing ? (
-                                  <input
-                                    type="text"
-                                    value={book.category}
-                                    onChange={(e) => updateField(String(book.id), 'category', e.target.value)}
-                                    className="w-full px-2 py-1 border rounded bg-white text-sm"
-                                  />
-                                ) : (
-                                  <div
-                                    onClick={() => startEditing(book)}
-                                    className="cursor-pointer hover:text-primary transition"
-                                  >
-                                    {book.category}
-                                  </div>
-                                )}
+                                <div className="cursor-pointer hover:text-primary transition">
+                                  {book.category}
+                                </div>
                               </TableCell>
 
                               {/* Price */}
@@ -348,10 +318,7 @@ export default function AdminBooks() {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          startEditing(book);
-                                          setTimeout(() => {
-                                            updateField(String(book.id), 'price', Math.max(0, book.price - 1));
-                                          }, 0);
+                                          updateField(String(book.id), 'price', Math.max(0, book.price - 1));
                                         }}
                                         className="p-1 hover:bg-gray-200 rounded"
                                         title="Decrease price"
@@ -361,10 +328,7 @@ export default function AdminBooks() {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          startEditing(book);
-                                          setTimeout(() => {
-                                            updateField(String(book.id), 'price', book.price + 1);
-                                          }, 0);
+                                          updateField(String(book.id), 'price', book.price + 1);
                                         }}
                                         className="p-1 hover:bg-gray-200 rounded"
                                         title="Increase price"
@@ -372,6 +336,43 @@ export default function AdminBooks() {
                                         <Plus size={16} />
                                       </button>
                                     </div>
+                                  </div>
+                                )}
+                              </TableCell>
+
+                              {/* Discount % */}
+                              <TableCell>
+                                {isEditing ? (
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      onClick={() => updateField(String(book.id), 'discountPercent', Math.max(0, book.discountPercent - 1))}
+                                      className="p-1 hover:bg-gray-200 rounded"
+                                      title="Decrease discount"
+                                    >
+                                      <Minus size={16} />
+                                    </button>
+                                    <input
+                                      type="number"
+                                      value={book.discountPercent}
+                                      onChange={(e) => updateField(String(book.id), 'discountPercent', Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)))}
+                                      className="w-16 px-2 py-1 border rounded bg-white text-sm text-center"
+                                      min="0"
+                                      max="100"
+                                    />
+                                    <button
+                                      onClick={() => updateField(String(book.id), 'discountPercent', Math.min(100, book.discountPercent + 1))}
+                                      className="p-1 hover:bg-gray-200 rounded"
+                                      title="Increase discount"
+                                    >
+                                      <Plus size={16} />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div
+                                    onClick={() => startEditing(book)}
+                                    className="cursor-pointer hover:text-primary/50 transition"
+                                  >
+                                    {book.discountPercent}%
                                   </div>
                                 )}
                               </TableCell>
@@ -411,10 +412,7 @@ export default function AdminBooks() {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          startEditing(book);
-                                          setTimeout(() => {
-                                            updateField(String(book.id), 'stock', Math.max(0, book.stock - 1));
-                                          }, 0);
+                                          updateField(String(book.id), 'stock', Math.max(0, book.stock - 1));
                                         }}
                                         className="p-1 hover:bg-gray-200 rounded"
                                         title="Decrease stock"
@@ -424,10 +422,7 @@ export default function AdminBooks() {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          startEditing(book);
-                                          setTimeout(() => {
-                                            updateField(String(book.id), 'stock', book.stock + 1);
-                                          }, 0);
+                                          updateField(String(book.id), 'stock', book.stock + 1);
                                         }}
                                         className="p-1 hover:bg-gray-200 rounded"
                                         title="Increase stock"
@@ -441,22 +436,12 @@ export default function AdminBooks() {
 
                               {/* Status */}
                               <TableCell>
-                                {isEditing ? (
-                                  <button
-                                    onClick={() => toggleStatus(String(book.id))}
-                                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm transition"
-                                  >
-                                    {book.status}
-                                  </button>
-                                ) : (
-                                  <Badge
-                                    variant={book.stock > 10 ? "default" : book.stock > 0 ? "secondary" : "destructive"}
-                                    className="cursor-pointer hover:opacity-80 transition"
-                                    onClick={() => startEditing(book)}
-                                  >
-                                    {book.stock > 10 ? "In Stock" : book.stock > 0 ? "Low Stock" : "Out of Stock"}
-                                  </Badge>
-                                )}
+                                <Badge
+                                  variant={book.stock > 10 ? "default" : book.stock > 0 ? "secondary" : "destructive"}
+                                  className="cursor-default"
+                                >
+                                  {book.stock > 10 ? "In Stock" : book.stock > 0 ? "Low Stock" : "Out of Stock"}
+                                </Badge>
                               </TableCell>
 
                               {/* Action */}

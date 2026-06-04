@@ -17,6 +17,7 @@ import {
     PasswordResetRequestDto,
     PasswordResetDto,
     VerifyEmailDto,
+    ChangePasswordDto,
     AuthResponseDto,
 } from './dto/auth.dto';
 
@@ -61,6 +62,17 @@ export class AuthController {
     async resetPassword(@Body() dto: PasswordResetDto): Promise<{ message: string }> {
         await this.authService.resetPassword(dto);
         return { message: 'Password reset successfully' };
+    }
+
+    @Post('change-password')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async changePassword(
+        @CurrentUser() user: any,
+        @Body() dto: ChangePasswordDto,
+    ): Promise<{ message: string }> {
+        await this.authService.changePassword(user.userId, dto);
+        return { message: 'Password changed successfully' };
     }
 
     @Post('verify-email')

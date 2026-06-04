@@ -14,7 +14,7 @@ import OnlineRead from "./pages/customer/OnlineRead.tsx";
 import BookReader from "./pages/customer/BookReader.tsx";
 import Purchase from "./pages/customer/Purchase.tsx";
 import Issued from "./pages/customer/Issued.tsx";
-import Settings from "./pages/customer/Settings.tsx";
+import Settings from "./pages/Settings.tsx";
 import ReturnDeadline from "./pages/customer/ReturnDeadline.tsx";
 import Notifications from "./pages/Notifications.tsx";
 import Search from "./pages/Search.tsx";
@@ -27,7 +27,6 @@ import AdminCustomers from "./pages/admin/customers.tsx";
 import AdminPOS from "./pages/admin/pos.tsx";
 import AdminOrders from "./pages/admin/orders.tsx";
 import AdminInventory from "./pages/admin/inventory.tsx";
-import AdminSettings from "./pages/admin/settings.tsx";
 import Keys from "./pages/Normal.tsx";
 
 //Start here
@@ -54,7 +53,6 @@ const App = () => (
           <Route path="/purchase" element={<Purchase />} />
           <Route path="/cart" element={<Purchase />} />
           <Route path="/issued" element={<Issued />} />
-          <Route path="/settings" element={<Settings />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -65,7 +63,7 @@ const App = () => (
           <Route path="/admin/customers" element={<AdminCustomers />} />
           <Route path="/admin/suppliers" element={<AdminSuppliers />} />
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/api/keys" element={<Keys />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

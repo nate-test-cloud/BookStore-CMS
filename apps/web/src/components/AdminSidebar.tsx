@@ -28,7 +28,7 @@ const mainItems = [
 
 const toolItems = [
     { icon: TrendingUp, label: "Analytics", to: "/admin/analytics" },
-    { icon: Settings, label: "Settings", to: "/admin/settings" },
+    { icon: Settings, label: "Settings", to: "/settings" },
 ];
 
 const AdminSidebar = () => {

@@ -421,6 +421,96 @@ The play has influenced literature, philosophy, and popular culture for over fou
     }
 
     console.log('✅ Seeding complete!');
+
+    // Create dummy coupons
+    const now = new Date();
+    const futureDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+
+    await prisma.coupon.createMany({
+        data: [
+            {
+                code: 'WELCOME10',
+                description: '10% discount on your first purchase',
+                discountType: 'PERCENTAGE',
+                discountValue: 10,
+                maxDiscount: 500,
+                minPurchase: 200,
+                maxUses: 100,
+                maxUsesPerUser: 1,
+                startDate: now,
+                expiryDate: futureDate,
+                isActive: true,
+                applicableBooks: [],
+                applicableCategories: [],
+            },
+            {
+                code: 'SAVE20',
+                description: 'Flat ₹20 off on orders above ₹300',
+                discountType: 'FIXED',
+                discountValue: 20,
+                minPurchase: 300,
+                maxUses: 50,
+                maxUsesPerUser: 2,
+                startDate: now,
+                expiryDate: futureDate,
+                isActive: true,
+                applicableBooks: [],
+                applicableCategories: [],
+            },
+            {
+                code: 'SUMMER25',
+                description: 'Enjoy 25% discount this summer',
+                discountType: 'PERCENTAGE',
+                discountValue: 25,
+                maxDiscount: 1000,
+                minPurchase: 500,
+                maxUses: 200,
+                startDate: now,
+                expiryDate: futureDate,
+                isActive: true,
+                applicableBooks: [],
+                applicableCategories: [],
+            },
+            {
+                code: 'FLAT50',
+                description: 'Flat ₹50 discount on premium books',
+                discountType: 'FIXED',
+                discountValue: 50,
+                minPurchase: 400,
+                maxUses: 75,
+                maxUsesPerUser: 3,
+                startDate: now,
+                expiryDate: futureDate,
+                isActive: true,
+                applicableBooks: [],
+                applicableCategories: [],
+            },
+            {
+                code: 'BOOKMANIA15',
+                description: '15% off on all books',
+                discountType: 'PERCENTAGE',
+                discountValue: 15,
+                maxDiscount: 800,
+                minPurchase: 100,
+                maxUses: 300,
+                startDate: now,
+                expiryDate: futureDate,
+                isActive: true,
+                applicableBooks: [],
+                applicableCategories: [],
+            },
+        ],
+        skipDuplicates: true,
+    });
+
+    console.log(`
+    🎉 Dummy Coupons Created:
+    • WELCOME10 - 10% off (min ₹200)
+    • SAVE20 - ₹20 off (min ₹300)
+    • SUMMER25 - 25% off (min ₹500)
+    • FLAT50 - ₹50 off (min ₹400)
+    • BOOKMANIA15 - 15% off (min ₹100)
+  `);
     console.log(`
     🔐 Admin User: admin@bookstore.com / Admin@123
     👨‍💼 Supplier User: supplier@bookstore.com / Supplier@123

@@ -13,6 +13,11 @@ export default function BookDetails() {
   const [book, setBook] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -38,6 +43,7 @@ export default function BookDetails() {
     if (!book) return;
 
     try {
+      console.log('[AddToCart Debug]', { bookId: book.id, bookTitle: book.title, quantity });
       await apiPost("/cart", {
         bookId: book.id,
         quantity,
@@ -46,8 +52,47 @@ export default function BookDetails() {
       alert(`${quantity} copy(ies) added to cart!`);
       navigate("/cart");
     } catch (error) {
+      console.error('[AddToCart Error]', error);
       alert(error instanceof Error ? error.message : "Error adding to cart");
     }
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+
+    setValidatingCoupon(true);
+    setCouponError("");
+
+    try {
+      const bookPrice = book.currentPrice || book.price || 0;
+      const totalPrice = bookPrice * quantity;
+      console.log('[Coupon Debug]', { bookPrice, quantity, totalPrice, bookId: book.id });
+
+      const result = await apiPost("/orders/coupons/validate", {
+        code: couponCode,
+        amount: totalPrice,
+      });
+
+      setAppliedCoupon(result.coupon);
+      setDiscountAmount(result.discountAmount);
+      setCouponError("");
+    } catch (error) {
+      setCouponError(error instanceof Error ? error.message : "Invalid coupon code");
+      setAppliedCoupon(null);
+      setDiscountAmount(0);
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setDiscountAmount(0);
+    setCouponCode("");
+    setCouponError("");
   };
 
   if (loading) {
@@ -151,7 +196,7 @@ export default function BookDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Price per copy</p>
                     <p className="text-4xl font-bold text-primary">
-                      ₹{book.price || 0}
+                      ₹{(book.currentPrice || book.price || 0).toFixed(2)}
                     </p>
                   </div>
 
@@ -197,10 +242,80 @@ export default function BookDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Total</p>
                     <p className="text-2xl font-bold">
-                      ₹{(book.price || 0) * quantity}
+                      ₹{(((book.currentPrice || book.price || 0) * quantity) - discountAmount).toFixed(2)}
                     </p>
                   </div>
                 </div>
+
+                {/* Coupon Section */}
+                <div className="mt-6 p-4 rounded-lg border border-primary/20 bg-background">
+                  <p className="text-sm font-semibold mb-3 text-foreground">Apply Coupon</p>
+
+                  {appliedCoupon ? (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-green-50/50 border border-green-200/50 rounded-lg">
+                        <p className="text-sm font-medium text-green-700">
+                          ✓ Coupon Applied: {appliedCoupon.code}
+                        </p>
+                        {appliedCoupon.description && (
+                          <p className="text-xs text-green-600 mt-1">{appliedCoupon.description}</p>
+                        )}
+                        <p className="text-sm font-semibold text-green-800 mt-2">
+                          Discount: ₹{discountAmount.toFixed(2)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="w-full py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded border border-muted-foreground/20 transition"
+                      >
+                        Remove Coupon
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter coupon code"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value.toUpperCase());
+                          setCouponError("");
+                        }}
+                        className="flex-1 px-3 py-2 border border-input rounded-lg bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        disabled={validatingCoupon}
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={!couponCode.trim() || validatingCoupon}
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {validatingCoupon ? "Validating..." : "Apply"}
+                      </button>
+                    </div>
+                  )}
+
+                  {couponError && (
+                    <p className="text-sm text-destructive mt-2">{couponError}</p>
+                  )}
+                </div>
+
+                {/* Price Summary with Discount */}
+                {discountAmount > 0 && (
+                  <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20 space-y-2">
+                    <div className="flex justify-between text-sm text-foreground">
+                      <span>Original Price:</span>
+                      <span>₹{(((book.currentPrice || book.price || 0) * quantity)).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-green-600 font-medium">
+                      <span>Discount:</span>
+                      <span>-₹{discountAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-bold border-t border-primary/10 pt-2 text-foreground">
+                      <span>Final Price:</span>
+                      <span>₹{((((book.currentPrice || book.price || 0) * quantity)) - discountAmount).toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
 
                 <button
                   onClick={handleAddToCart}

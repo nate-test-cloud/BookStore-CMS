@@ -16,6 +16,7 @@ import {
     PasswordResetRequestDto,
     PasswordResetDto,
     VerifyEmailDto,
+    ChangePasswordDto,
     JwtPayload,
     AuthResponseDto,
 } from './dto/auth.dto';
@@ -251,6 +252,44 @@ export class AuthService {
         await this.prisma.emailVerification.update({
             where: { id: verification.id },
             data: { verified: true, verifiedAt: new Date() },
+        });
+    }
+
+    async changePassword(userId: string, dto: ChangePasswordDto): Promise<void> {
+        if (dto.newPassword !== dto.confirmPassword) {
+            throw new BadRequestException('New passwords do not match');
+        }
+
+        if (dto.newPassword.length < 8) {
+            throw new BadRequestException('Password must be at least 8 characters');
+        }
+
+        // Find user
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Verify current password
+        const isCurrentPasswordValid = await bcrypt.compare(
+            dto.currentPassword,
+            user.passwordHash,
+        );
+
+        if (!isCurrentPasswordValid) {
+            throw new UnauthorizedException('Current password is incorrect');
+        }
+
+        // Hash new password
+        const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+
+        // Update user password
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { passwordHash },
         });
     }
 

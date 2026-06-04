@@ -21,6 +21,7 @@ async function main() {
     await prisma.category.deleteMany();
     await prisma.author.deleteMany();
     await prisma.publisher.deleteMany();
+    await prisma.supplier.deleteMany();
 
     // Create admin user
     const adminPassword = await bcrypt.hash('Admin@123', 10);
@@ -384,6 +385,39 @@ The play has influenced literature, philosophy, and popular culture for over fou
 [End of Page ${page}]`,
             },
         });
+    }
+
+    // Create dummy reviews for books
+    const reviewData = [
+        { rating: 5, title: 'Masterpiece!', content: 'Absolutely amazing book. Highly recommended!' },
+        { rating: 4, title: 'Great read', content: 'Very good book, enjoyed it a lot.' },
+        { rating: 5, title: 'Excellent', content: 'Could not put it down. Fantastic story!' },
+        { rating: 3, title: 'Good', content: 'It was okay, some parts were slow.' },
+        { rating: 4, title: 'Highly recommended', content: 'Worth reading. Great author!' },
+        { rating: 5, title: 'Five stars', content: 'Perfect in every way!' },
+        { rating: 4, title: 'Very good', content: 'Enjoyed the story and characters.' },
+        { rating: 2, title: 'Not bad', content: 'It was fine but not my style.' },
+        { rating: 5, title: 'Outstanding', content: 'Best book I have read this year!' },
+        { rating: 4, title: 'Wonderful', content: 'Beautiful writing and engaging plot.' },
+    ];
+
+    // Add reviews to each book
+    for (const book of books) {
+        const numReviews = Math.floor(Math.random() * 4) + 2; // 2-5 reviews per book
+        for (let i = 0; i < numReviews; i++) {
+            const review = reviewData[Math.floor(Math.random() * reviewData.length)];
+            await prisma.review.create({
+                data: {
+                    bookId: book.id,
+                    userId: customerUser.id,
+                    rating: review.rating,
+                    title: review.title,
+                    content: review.content,
+                    isVerified: Math.random() > 0.3, // 70% chance of verified
+                    helpfulCount: Math.floor(Math.random() * 20),
+                },
+            });
+        }
     }
 
     console.log('✅ Seeding complete!');

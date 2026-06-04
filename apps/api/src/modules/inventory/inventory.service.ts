@@ -23,6 +23,37 @@ import {
 export class InventoryService {
     constructor(private prisma: PrismaService) { }
 
+    /**
+     * Helper method to transform Prisma book objects to API response format
+     * Ensures consistent data structure across all endpoints
+     */
+    private transformBook(book: any) {
+        // Calculate average rating from reviews
+        const avgRating = book.reviews && book.reviews.length > 0
+            ? Math.round((book.reviews.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / book.reviews.length) * 10) / 10
+            : 0;
+
+        return {
+            id: book.id, // Keep CUID ID for database queries
+            title: book.title,
+            author: book.authors?.[0]?.name || 'Unknown',
+            category: book.category?.name || 'Unknown',
+            isbn: book.isbn,
+            price: book.currentPrice || book.basePrice,
+            costPrice: book.basePrice,
+            stock: book.stock,
+            status: book.stock > 10 ? 'In Stock' : book.stock > 0 ? 'Low Stock' : 'Out of Stock',
+            rating: avgRating,
+            coverImage: book.coverImage,
+            description: book.description,
+            publisher: book.publisher?.name || null,
+            publishedYear: book.publicationDate ? new Date(book.publicationDate).getFullYear() : null,
+            supplierId: null,
+            createdAt: book.createdAt?.toISOString() || new Date().toISOString(),
+            updatedAt: book.updatedAt?.toISOString() || null,
+        };
+    }
+
     // =============================================
     // BOOK MANAGEMENT
     // =============================================
@@ -166,24 +197,7 @@ export class InventoryService {
         ]);
 
         return {
-            data: books.map(book => ({
-                id: IdMapper.cuidToNumericId(book.id),
-                title: book.title,
-                author: book.authors?.[0]?.name || 'Unknown',
-                category: book.category?.name || 'Unknown',
-                isbn: book.isbn,
-                price: book.currentPrice || book.basePrice,
-                costPrice: book.basePrice,
-                stock: book.stock,
-                status: book.stock > 10 ? 'In Stock' : book.stock > 0 ? 'Low Stock' : 'Out of Stock',
-                coverImage: book.coverImage,
-                description: book.description,
-                publisher: book.publisher?.name || null,
-                publishedYear: book.publicationDate ? new Date(book.publicationDate).getFullYear() : null,
-                supplierId: null,
-                createdAt: book.createdAt?.toISOString() || new Date().toISOString(),
-                updatedAt: book.updatedAt?.toISOString() || null,
-            })),
+            data: books.map(book => this.transformBook(book)),
             total,
             page,
             limit,
@@ -208,7 +222,7 @@ export class InventoryService {
             throw new NotFoundException('Book not found');
         }
 
-        return book;
+        return this.transformBook(book);
     }
 
     async deleteBook(id: string) {
@@ -589,7 +603,7 @@ export class InventoryService {
     async searchBooks(query: string) {
         const searchTerm = query.toLowerCase();
 
-        return this.prisma.book.findMany({
+        const books = await this.prisma.book.findMany({
             where: {
                 deletedAt: null,
                 isActive: true,
@@ -608,6 +622,8 @@ export class InventoryService {
             },
             take: 50,
         });
+
+        return books.map(book => this.transformBook(book));
     }
 
     // =============================================
@@ -647,6 +663,7 @@ export class InventoryService {
                     include: {
                         authors: true,
                         category: true,
+                        publisher: true,
                         reviews: { select: { rating: true } },
                     },
                 },
@@ -655,7 +672,10 @@ export class InventoryService {
 
         return {
             message: 'Book added to favourites successfully',
-            wishlistItem,
+            wishlistItem: {
+                ...wishlistItem,
+                book: this.transformBook(wishlistItem.book),
+            },
         };
     }
 
@@ -687,6 +707,7 @@ export class InventoryService {
                     include: {
                         authors: true,
                         category: true,
+                        publisher: true,
                         reviews: { select: { rating: true } },
                     },
                 },
@@ -699,7 +720,7 @@ export class InventoryService {
         });
 
         return {
-            data: wishlistItems.map(item => item.book),
+            data: wishlistItems.map(item => this.transformBook(item.book)),
             pagination: {
                 page,
                 limit,
@@ -769,11 +790,11 @@ export class InventoryService {
             take: limit,
         });
 
-        return recommendations;
+        return recommendations.map(book => this.transformBook(book));
     }
 
     private async getTrendingBooks(limit = 10) {
-        return this.prisma.book.findMany({
+        const books = await this.prisma.book.findMany({
             where: {
                 deletedAt: null,
                 isActive: true,
@@ -782,6 +803,7 @@ export class InventoryService {
                 authors: true,
                 category: true,
                 reviews: { select: { rating: true } },
+                publisher: true,
             },
             orderBy: [
                 { rating: 'desc' },
@@ -789,5 +811,7 @@ export class InventoryService {
             ],
             take: limit,
         });
+
+        return books.map(book => this.transformBook(book));
     }
 }
